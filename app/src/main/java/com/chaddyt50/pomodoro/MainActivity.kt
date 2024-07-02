@@ -23,7 +23,7 @@ class MainActivity : ComponentActivity() {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     Column(modifier = Modifier.padding(innerPadding)) {
                         val viewModel: FocusTimerViewModel by viewModels()
-                        FocusTimer(viewModel = viewModel)
+                        FocusTimer(applicationContext, viewModel)
                     }
                 }
             }
