@@ -1,5 +1,6 @@
 package com.chaddyt50.pomodoro.view
 
+import android.app.Activity
 import android.content.Context
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -21,7 +22,6 @@ import com.chaddyt50.pomodoro.viewmodel.FocusTimerViewModel
 
 @Composable
 fun FocusTimer(
-    context: Context,
     viewModel: FocusTimerViewModel
 ) {
     Column(
@@ -30,7 +30,7 @@ fun FocusTimer(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        TimeDurationDisplay(context, viewModel)
+        TimeDurationDisplay(viewModel)
 
         Button(
             onClick = {
