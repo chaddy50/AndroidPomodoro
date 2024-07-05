@@ -1,65 +1,40 @@
 package com.chaddyt50.pomodoro.viewmodel
 
-import android.os.CountDownTimer
-import android.widget.NumberPicker
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
-import java.time.LocalDate
+import com.chaddyt50.pomodoro.model.Timer
 import java.util.Calendar
 import java.util.concurrent.TimeUnit
 
-const val COUNT_DOWN_INTERVAL_SECONDS: Long = 1000
+val MINIMUM_FOCUS_TIME_IN_MILLISECONDS = TimeUnit.MINUTES.toMillis(10)
+val HALF_HOUR_IN_MILLISECONDS = TimeUnit.HOURS.toMillis(1) / 2
 
 class FocusTimerViewModel : ViewModel() {
-    private val _focusTimeInMinutes = mutableLongStateOf(getMinutesUntilNextHalfHours())
+    private val _focusUntilTimeInMilliseconds =
+        mutableLongStateOf(getFocusUntilTimeInMilliseconds())
+    val focusUntilTimeInMilliseconds: State<Long> = _focusUntilTimeInMilliseconds
 
-    private val _timeLeftInMilliseconds =
-        mutableLongStateOf(TimeUnit.MINUTES.toMillis(_focusTimeInMinutes.longValue))
-    val timeLeftInMilliseconds: State<Long> = _timeLeftInMilliseconds
+    private val _focusTimer = mutableStateOf(
+        Timer(
+            _focusUntilTimeInMilliseconds.longValue - Calendar.getInstance().timeInMillis,
+            {})
+    )
+    val focusTimer: State<Timer> = _focusTimer
 
-    private val _isTimerActive = mutableStateOf(false)
-    val isTimerActive: State<Boolean> = _isTimerActive
+    private fun getFocusUntilTimeInMilliseconds(): Long {
+        val nextBreakLengthInMilliseconds = TimeUnit.MINUTES.toMillis(5)
 
-    private val timer =
-        object : CountDownTimer(
-            minutesToMilliseconds(_focusTimeInMinutes.longValue),
-            COUNT_DOWN_INTERVAL_SECONDS
-        ) {
-            override fun onTick(millisecondsUntilFinished: Long) {
-                _timeLeftInMilliseconds.longValue = millisecondsUntilFinished
-            }
-
-            override fun onFinish() {
-                _isTimerActive.value = false
-            }
-        }
-
-    private fun minutesToMilliseconds(minutes: Long): Long {
-        return TimeUnit.MINUTES.toMillis(minutes);
-    }
-
-    fun startTimer() {
-        if (!_isTimerActive.value) {
-            _isTimerActive.value = true
-            _timeLeftInMilliseconds.longValue = minutesToMilliseconds(_focusTimeInMinutes.longValue)
-            timer.start()
-        }
-    }
-
-    private fun getMinutesUntilNextHalfHours(): Long {
-        val halfHourInMilliseconds = TimeUnit.HOURS.toMillis(1) / 2
         val currentTimeInMilliseconds = Calendar.getInstance().timeInMillis
-        val millisecondsSinceLastHalfHour = currentTimeInMilliseconds % halfHourInMilliseconds
+        val millisecondsSinceLastHalfHour = currentTimeInMilliseconds % HALF_HOUR_IN_MILLISECONDS
+        val millisecondsUntilNextHalfHour =
+            HALF_HOUR_IN_MILLISECONDS - millisecondsSinceLastHalfHour - nextBreakLengthInMilliseconds
 
-        val minutesUntilNextHalfHour = TimeUnit.MILLISECONDS.toMinutes(halfHourInMilliseconds - millisecondsSinceLastHalfHour)
-        if (minutesUntilNextHalfHour > 5) {
-            return minutesUntilNextHalfHour
-        }
-        else {
-            // If we're at 5 minutes or less, just carry over into the next focus session
-            return minutesUntilNextHalfHour + TimeUnit.MILLISECONDS.toMinutes(halfHourInMilliseconds)
+        if (millisecondsUntilNextHalfHour < MINIMUM_FOCUS_TIME_IN_MILLISECONDS) {
+            return currentTimeInMilliseconds + millisecondsUntilNextHalfHour + HALF_HOUR_IN_MILLISECONDS
+        } else {
+            return currentTimeInMilliseconds + millisecondsUntilNextHalfHour
         }
     }
 }

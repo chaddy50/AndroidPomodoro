@@ -1,40 +1,43 @@
 package com.chaddyt50.pomodoro.component
 
-import android.app.Activity
-import android.app.AlertDialog
-import android.app.Dialog
-import android.content.Context
-import android.text.InputType
-import android.widget.EditText
-import android.widget.NumberPicker
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.sp
-import com.chaddyt50.pomodoro.MainActivity
-import com.chaddyt50.pomodoro.viewmodel.FocusTimerViewModel
+import com.chaddyt50.pomodoro.model.Timer
+import java.text.SimpleDateFormat
+import java.util.Calendar
 import java.util.concurrent.TimeUnit
 
 @Composable
 fun TimeDurationDisplay(
-    viewModel: FocusTimerViewModel
+    focusUntilTimeInMilliseconds: Long,
+    focusTimer: Timer
 ) {
-    val minutes = TimeUnit.MILLISECONDS.toMinutes(viewModel.timeLeftInMilliseconds.value)
+    val minutes = TimeUnit.MILLISECONDS.toMinutes(focusTimer.timeLeftInMilliseconds.value)
     val seconds =
         TimeUnit.MILLISECONDS.toSeconds(
-            viewModel.timeLeftInMilliseconds.value - TimeUnit.MINUTES.toMillis(
+            focusTimer.timeLeftInMilliseconds.value - TimeUnit.MINUTES.toMillis(
                 minutes
             )
         )
 
-    Text(
-        "${minutes}:${seconds.toString().padStart(2, '0')}",
-        fontSize = 50.sp,
-    )
+    val dateFormatter = SimpleDateFormat("HH:mm")
+    val calendar: Calendar = Calendar.getInstance()
+    calendar.setTimeInMillis(focusUntilTimeInMilliseconds)
+
+    if (!focusTimer.isActive.value) {
+        Text(
+            "Focus until",
+            fontSize = 30.sp
+        )
+        Text(
+            dateFormatter.format(calendar.time),
+            fontSize = 50.sp
+        )
+    } else {
+        Text(
+            "${minutes}:${seconds.toString().padStart(2, '0')}",
+            fontSize = 50.sp,
+        )
+    }
 }
