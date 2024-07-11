@@ -23,7 +23,7 @@ fun TimeDurationDisplay(
 
     val dateFormatter = SimpleDateFormat("HH:mm")
     val calendar: Calendar = Calendar.getInstance()
-    calendar.setTimeInMillis(focusUntilTimeInMilliseconds)
+    calendar.timeInMillis = focusUntilTimeInMilliseconds
 
     if (!focusTimer.isActive.value) {
         Text(

@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Pomodoro</string>
+    <string name="notification_channel_name">Pomodoro Notifications</string>
+    <string name="notification_channel_description">Notification channel for Pomodoro app</string>
 </resources>

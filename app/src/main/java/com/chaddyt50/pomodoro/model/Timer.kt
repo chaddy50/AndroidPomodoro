@@ -15,6 +15,9 @@ class Timer(timerLengthInMilliseconds: Long, onFinish: ()->Unit) {
     private val _isActive = mutableStateOf(false)
     val isActive: State<Boolean> = _isActive
 
+    private val _isFinished = mutableStateOf(false)
+    val isFinished: State<Boolean> = _isFinished
+
     private val _timer =
         object : CountDownTimer(
             _timeLeftInMilliseconds.longValue,
@@ -26,6 +29,7 @@ class Timer(timerLengthInMilliseconds: Long, onFinish: ()->Unit) {
 
             override fun onFinish() {
                 _isActive.value = false
+                _isFinished.value = true
                 onFinish()
             }
         }
@@ -33,6 +37,7 @@ class Timer(timerLengthInMilliseconds: Long, onFinish: ()->Unit) {
     fun start() {
         if (!_isActive.value) {
             _isActive.value = true
+            _isFinished.value = false
             _timer.start()
         }
     }

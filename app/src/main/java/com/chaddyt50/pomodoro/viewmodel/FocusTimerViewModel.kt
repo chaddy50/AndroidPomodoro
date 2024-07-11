@@ -19,14 +19,15 @@ class FocusTimerViewModel : ViewModel() {
     private val _focusTimer = mutableStateOf(
         Timer(
             _focusUntilTimeInMilliseconds.longValue - Calendar.getInstance().timeInMillis,
-            {})
+            {}
+        )
     )
     val focusTimer: State<Timer> = _focusTimer
 
     private fun getFocusUntilTimeInMilliseconds(): Long {
+        val currentTimeInMilliseconds = Calendar.getInstance().timeInMillis
         val nextBreakLengthInMilliseconds = TimeUnit.MINUTES.toMillis(5)
 
-        val currentTimeInMilliseconds = Calendar.getInstance().timeInMillis
         val millisecondsSinceLastHalfHour = currentTimeInMilliseconds % HALF_HOUR_IN_MILLISECONDS
         val millisecondsUntilNextHalfHour =
             HALF_HOUR_IN_MILLISECONDS - millisecondsSinceLastHalfHour - nextBreakLengthInMilliseconds
@@ -37,4 +38,5 @@ class FocusTimerViewModel : ViewModel() {
             return currentTimeInMilliseconds + millisecondsUntilNextHalfHour
         }
     }
+
 }
