@@ -16,13 +16,13 @@ import androidx.core.app.NotificationCompat
 import com.chaddyt50.pomodoro.MainActivity
 import com.chaddyt50.pomodoro.R
 import com.chaddyt50.pomodoro.component.FocusTimer
-import com.chaddyt50.pomodoro.viewmodel.FocusTimerViewModel
+import com.chaddyt50.pomodoro.viewmodel.PomodoroViewModel
 
 
 @Composable
-fun MainView(
+fun Pomodoro(
     context: Context,
-    viewModel: FocusTimerViewModel
+    viewModel: PomodoroViewModel
 ) {
     Column(
         modifier = Modifier

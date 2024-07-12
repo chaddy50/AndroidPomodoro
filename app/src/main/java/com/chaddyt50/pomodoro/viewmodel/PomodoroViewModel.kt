@@ -11,7 +11,7 @@ import java.util.concurrent.TimeUnit
 val MINIMUM_FOCUS_TIME_IN_MILLISECONDS = TimeUnit.MINUTES.toMillis(10)
 val HALF_HOUR_IN_MILLISECONDS = TimeUnit.HOURS.toMillis(1) / 2
 
-class FocusTimerViewModel : ViewModel() {
+class PomodoroViewModel : ViewModel() {
     private val _focusUntilTimeInMilliseconds =
         mutableLongStateOf(getFocusUntilTimeInMilliseconds())
     val focusUntilTimeInMilliseconds: State<Long> = _focusUntilTimeInMilliseconds

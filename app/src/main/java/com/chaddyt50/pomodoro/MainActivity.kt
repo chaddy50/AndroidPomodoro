@@ -11,8 +11,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
 import com.chaddyt50.pomodoro.ui.theme.PomodoroTheme
-import com.chaddyt50.pomodoro.view.MainView
-import com.chaddyt50.pomodoro.viewmodel.FocusTimerViewModel
+import com.chaddyt50.pomodoro.view.Pomodoro
+import com.chaddyt50.pomodoro.viewmodel.PomodoroViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -24,8 +24,8 @@ class MainActivity : ComponentActivity() {
             PomodoroTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     Column(modifier = Modifier.padding(innerPadding)) {
-                        val viewModel: FocusTimerViewModel by viewModels()
-                        MainView(context, viewModel)
+                        val viewModel: PomodoroViewModel by viewModels()
+                        Pomodoro(context, viewModel)
                     }
                 }
             }
