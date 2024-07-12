@@ -30,24 +30,29 @@ fun FocusTimer(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        TimeDurationDisplay(viewModel.focusUntilTimeInMilliseconds.value, viewModel.focusTimer.value)
+        TimeDurationDisplay(
+            viewModel.focusUntilTimeInMilliseconds.value,
+            viewModel.focusTimerTimeLeftInMilliseconds.value,
+            viewModel.isFocusTimerActive.value
+        )
 
-        Button(
-            onClick = {
-                viewModel.focusTimer.value.start()
-            },
-            enabled = !viewModel.focusTimer.value.isActive.value
-        ) {
-            Text("Start Timer")
+        if (!viewModel.isFocusTimerActive.value) {
+            Button(
+                onClick = {
+                    viewModel.startFocusTimer()
+                }
+            ) {
+                Text("Start Timer")
+            }
         }
     }
 
-    if (viewModel.focusTimer.value.isFinished.value) {
-        onFocusTimerFinished(context)
+    if (viewModel.isFocusTimerFinished.value) {
+        sendFocusTimerFinishedNotification(context)
     }
 }
 
-fun onFocusTimerFinished(context: Context) {
+fun sendFocusTimerFinishedNotification(context: Context) {
     val activityIntent = Intent(context, MainActivity::class.java)
 
     val activityPendingIntent = PendingIntent.getActivity(
@@ -59,12 +64,13 @@ fun onFocusTimerFinished(context: Context) {
 
     val builder = NotificationCompat.Builder(context, "Notifications")
         .setSmallIcon(R.drawable.ic_launcher_foreground)
-        .setContentTitle("Test notification")
-        .setContentText("This is a test")
+        .setContentTitle("Focus time is over")
+        .setContentText("Take a break!")
         .setPriority(NotificationCompat.PRIORITY_HIGH)
         .setContentIntent(activityPendingIntent)
 
     val notificationManager =
         context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
     notificationManager.notify(12345, builder.build())
 }

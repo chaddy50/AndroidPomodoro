@@ -8,7 +8,8 @@ import java.util.concurrent.TimeUnit
 
 val COUNT_DOWN_INTERVAL_SECONDS = TimeUnit.SECONDS.toMillis(1)
 
-class Timer(timerLengthInMilliseconds: Long, onFinish: ()->Unit) {
+class Timer(timerLengthInMilliseconds: Long, onFinish: () -> Unit) {
+    //#region Properties
     private val _timeLeftInMilliseconds = mutableLongStateOf(timerLengthInMilliseconds)
     val timeLeftInMilliseconds: State<Long> = _timeLeftInMilliseconds
 
@@ -18,8 +19,29 @@ class Timer(timerLengthInMilliseconds: Long, onFinish: ()->Unit) {
     private val _isFinished = mutableStateOf(false)
     val isFinished: State<Boolean> = _isFinished
 
-    private val _timer =
-        object : CountDownTimer(
+    private var _timer = createTimer()
+
+    private val _onFinish = onFinish
+    //#endregion
+
+    //#region Public Functions
+    fun start() {
+        if (!_isActive.value) {
+            _isActive.value = true
+            _isFinished.value = false
+            _timer.start()
+        }
+    }
+
+    fun updateTimeLeft(newTimeLeftInMilliseconds: Long) {
+        _timeLeftInMilliseconds.longValue = newTimeLeftInMilliseconds
+        _timer = createTimer()
+    }
+    //#endregion
+
+    //#region Private Functions
+    private fun createTimer(): CountDownTimer {
+        return object : CountDownTimer(
             _timeLeftInMilliseconds.longValue,
             COUNT_DOWN_INTERVAL_SECONDS
         ) {
@@ -30,15 +52,9 @@ class Timer(timerLengthInMilliseconds: Long, onFinish: ()->Unit) {
             override fun onFinish() {
                 _isActive.value = false
                 _isFinished.value = true
-                onFinish()
+                _onFinish()
             }
         }
-
-    fun start() {
-        if (!_isActive.value) {
-            _isActive.value = true
-            _isFinished.value = false
-            _timer.start()
-        }
     }
+    //#endregion
 }
