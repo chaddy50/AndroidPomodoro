@@ -1,14 +1,15 @@
 package com.chaddyt50.pomodoro.component
 
+import android.content.Context
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.sp
-import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.concurrent.TimeUnit
 
 @Composable
 fun TimeDurationDisplay(
+    context: Context,
     focusUntilTimeInMilliseconds: Long,
     timeLeftInMilliseconds: Long,
     isFocusTimerActive: Boolean
@@ -21,7 +22,7 @@ fun TimeDurationDisplay(
             )
         )
 
-    val dateFormatter = SimpleDateFormat("HH:mm")
+    val dateFormatter = android.text.format.DateFormat.getTimeFormat(context)
     val calendar: Calendar = Calendar.getInstance()
     calendar.timeInMillis = focusUntilTimeInMilliseconds
 

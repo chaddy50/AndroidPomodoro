@@ -31,6 +31,7 @@ fun FocusTimer(
         verticalArrangement = Arrangement.Center
     ) {
         TimeDurationDisplay(
+            context,
             viewModel.focusUntilTimeInMilliseconds.value,
             viewModel.focusTimerTimeLeftInMilliseconds.value,
             viewModel.isFocusTimerActive.value
