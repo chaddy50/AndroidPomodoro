@@ -15,12 +15,12 @@ import androidx.compose.ui.Modifier
 import androidx.core.app.NotificationCompat
 import com.chaddyt50.pomodoro.MainActivity
 import com.chaddyt50.pomodoro.R
-import com.chaddyt50.pomodoro.component.TimeDurationDisplay
+import com.chaddyt50.pomodoro.component.FocusTimer
 import com.chaddyt50.pomodoro.viewmodel.FocusTimerViewModel
 
 
 @Composable
-fun FocusTimer(
+fun MainView(
     context: Context,
     viewModel: FocusTimerViewModel
 ) {
@@ -30,7 +30,7 @@ fun FocusTimer(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        TimeDurationDisplay(
+        FocusTimer(
             context,
             viewModel.focusUntilTimeInMilliseconds.value,
             viewModel.focusTimerTimeLeftInMilliseconds.value,

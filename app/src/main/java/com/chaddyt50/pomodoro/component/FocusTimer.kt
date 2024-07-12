@@ -8,7 +8,7 @@ import java.util.Calendar
 import java.util.concurrent.TimeUnit
 
 @Composable
-fun TimeDurationDisplay(
+fun FocusTimer(
     context: Context,
     focusUntilTimeInMilliseconds: Long,
     timeLeftInMilliseconds: Long,
