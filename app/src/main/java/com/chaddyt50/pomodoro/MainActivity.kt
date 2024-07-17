@@ -20,11 +20,12 @@ class MainActivity : ComponentActivity() {
         val context = this
         createNotificationChannels(context)
         enableEdgeToEdge()
+        val viewModel: PomodoroViewModel by viewModels()
+        lifecycle.addObserver(viewModel)
         setContent {
             PomodoroTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     Column(modifier = Modifier.padding(innerPadding)) {
-                        val viewModel: PomodoroViewModel by viewModels()
                         Pomodoro(context, viewModel)
                     }
                 }

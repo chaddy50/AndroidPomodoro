@@ -3,6 +3,9 @@ package com.chaddyt50.pomodoro.viewmodel
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
 import com.chaddyt50.pomodoro.model.Timer
 import java.util.Calendar
@@ -11,7 +14,7 @@ import java.util.concurrent.TimeUnit
 val MINIMUM_FOCUS_TIME_IN_MILLISECONDS = TimeUnit.MINUTES.toMillis(10)
 val HALF_HOUR_IN_MILLISECONDS = TimeUnit.HOURS.toMillis(1) / 2
 
-class PomodoroViewModel : ViewModel() {
+class PomodoroViewModel : ViewModel(), LifecycleEventObserver {
     private val _focusUntilTimeInMilliseconds =
         mutableLongStateOf(getFocusUntilTimeInMilliseconds())
     val focusUntilTimeInMilliseconds: State<Long> = _focusUntilTimeInMilliseconds
@@ -60,6 +63,12 @@ class PomodoroViewModel : ViewModel() {
             return currentTimeInMilliseconds + millisecondsUntilNextHalfHour + HALF_HOUR_IN_MILLISECONDS
         } else {
             return currentTimeInMilliseconds + millisecondsUntilNextHalfHour
+        }
+    }
+
+    override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
+        if(event == Lifecycle.Event.ON_RESUME) {
+            refreshFocusUntilTime()
         }
     }
 
