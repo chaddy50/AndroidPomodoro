@@ -7,8 +7,6 @@ import android.content.Intent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Button
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -34,18 +32,9 @@ fun Pomodoro(
             context,
             viewModel.focusUntilTimeInMilliseconds.value,
             viewModel.focusTimerTimeLeftInMilliseconds.value,
-            viewModel.isFocusTimerActive.value
+            viewModel.isFocusTimerActive.value,
+            { viewModel.startFocusTimer() }
         )
-
-        if (!viewModel.isFocusTimerActive.value) {
-            Button(
-                onClick = {
-                    viewModel.startFocusTimer()
-                }
-            ) {
-                Text("Start Timer")
-            }
-        }
     }
 
     if (viewModel.isFocusTimerFinished.value) {

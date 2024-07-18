@@ -1,6 +1,9 @@
 package com.chaddyt50.pomodoro.component
 
+import android.app.Activity
 import android.content.Context
+import android.view.View
+import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.sp
@@ -12,7 +15,8 @@ fun FocusTimer(
     context: Context,
     focusUntilTimeInMilliseconds: Long,
     timeLeftInMilliseconds: Long,
-    isFocusTimerActive: Boolean
+    isFocusTimerActive: Boolean,
+    startFocusTimer: ()->Unit
 ) {
     val minutes = TimeUnit.MILLISECONDS.toMinutes(timeLeftInMilliseconds)
     val seconds =
@@ -35,7 +39,19 @@ fun FocusTimer(
             dateFormatter.format(calendar.time),
             fontSize = 75.sp
         )
+        Button(
+            onClick = {
+                startFocusTimer()
+            }
+        ) {
+            Text("Start Timer")
+        }
     } else {
+        (context as Activity).window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_FULLSCREEN
+        // Remember that you should never show the action bar if the
+        // status bar is hidden, so hide that too if necessary.
+        context.actionBar?.hide()
+
         Text(
             "${minutes}:${seconds.toString().padStart(2, '0')}",
             fontSize = 75.sp,
