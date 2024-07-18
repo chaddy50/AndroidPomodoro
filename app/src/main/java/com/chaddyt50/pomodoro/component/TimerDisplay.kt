@@ -11,12 +11,14 @@ import java.util.Calendar
 import java.util.concurrent.TimeUnit
 
 @Composable
-fun FocusTimer(
+fun TimerDisplay(
     context: Context,
-    focusUntilTimeInMilliseconds: Long,
+    timerLengthInMilliseconds: Long,
     timeLeftInMilliseconds: Long,
-    isFocusTimerActive: Boolean,
-    startFocusTimer: ()->Unit
+    isActive: Boolean,
+    start: () -> Unit,
+    label: String,
+    startButtonLabel: String,
 ) {
     val minutes = TimeUnit.MILLISECONDS.toMinutes(timeLeftInMilliseconds)
     val seconds =
@@ -28,11 +30,11 @@ fun FocusTimer(
 
     val dateFormatter = android.text.format.DateFormat.getTimeFormat(context)
     val calendar: Calendar = Calendar.getInstance()
-    calendar.timeInMillis = focusUntilTimeInMilliseconds
+    calendar.timeInMillis = timerLengthInMilliseconds
 
-    if (!isFocusTimerActive) {
+    if (!isActive) {
         Text(
-            "Focus until",
+            label,
             fontSize = 30.sp
         )
         Text(
@@ -41,20 +43,37 @@ fun FocusTimer(
         )
         Button(
             onClick = {
-                startFocusTimer()
+                start()
             }
         ) {
-            Text("Start Timer")
+            Text(
+                startButtonLabel,
+                fontSize = 30.sp
+            )
         }
-    } else {
-        (context as Activity).window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_FULLSCREEN
-        // Remember that you should never show the action bar if the
-        // status bar is hidden, so hide that too if necessary.
-        context.actionBar?.hide()
 
+        showStatusBar(context)
+    } else {
         Text(
             "${minutes}:${seconds.toString().padStart(2, '0')}",
             fontSize = 75.sp,
         )
+
+        hideStatusBar(context)
     }
+}
+
+private fun hideStatusBar(context: Context) {
+    (context as Activity).window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_FULLSCREEN
+    // Remember that you should never show the action bar if the
+    // status bar is hidden, so hide that too if necessary.
+    context.actionBar?.hide()
+}
+
+private fun showStatusBar(context: Context) {
+    (context as Activity).window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_VISIBLE
+    // Remember that you should never show the action bar if the
+    // status bar is hidden, so hide that too if necessary.
+    context.actionBar?.show()
+
 }

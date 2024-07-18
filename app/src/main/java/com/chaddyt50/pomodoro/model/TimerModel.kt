@@ -8,7 +8,7 @@ import java.util.concurrent.TimeUnit
 
 val COUNT_DOWN_INTERVAL_SECONDS = TimeUnit.SECONDS.toMillis(1)
 
-class Timer(timerLengthInMilliseconds: Long, onFinish: () -> Unit) {
+class TimerModel(timerLengthInMilliseconds: Long, onFinish: () -> Unit) {
     //#region Properties
     private val _timeLeftInMilliseconds = mutableLongStateOf(timerLengthInMilliseconds)
     val timeLeftInMilliseconds: State<Long> = _timeLeftInMilliseconds

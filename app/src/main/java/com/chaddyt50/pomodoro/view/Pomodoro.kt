@@ -13,7 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.core.app.NotificationCompat
 import com.chaddyt50.pomodoro.MainActivity
 import com.chaddyt50.pomodoro.R
-import com.chaddyt50.pomodoro.component.FocusTimer
+import com.chaddyt50.pomodoro.component.TimerDisplay
 import com.chaddyt50.pomodoro.viewmodel.PomodoroViewModel
 
 
@@ -28,12 +28,14 @@ fun Pomodoro(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        FocusTimer(
+        TimerDisplay(
             context,
             viewModel.focusUntilTimeInMilliseconds.value,
             viewModel.focusTimerTimeLeftInMilliseconds.value,
             viewModel.isFocusTimerActive.value,
-            { viewModel.startFocusTimer() }
+            { viewModel.startFocusTimer() },
+            "Focus until:",
+            "Focus"
         )
     }
 

@@ -7,7 +7,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
-import com.chaddyt50.pomodoro.model.Timer
+import com.chaddyt50.pomodoro.model.TimerModel
 import java.util.Calendar
 import java.util.concurrent.TimeUnit
 
@@ -20,7 +20,7 @@ class PomodoroViewModel : ViewModel(), LifecycleEventObserver {
     val focusUntilTimeInMilliseconds: State<Long> = _focusUntilTimeInMilliseconds
 
     private val _focusTimer = mutableStateOf(
-        Timer(
+        TimerModel(
             getFocusTimerLengthInMilliseconds(),
             ::onFocusTimerFinished
         )
