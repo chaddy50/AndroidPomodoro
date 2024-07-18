@@ -1,7 +1,6 @@
 package com.chaddyt50.pomodoro.viewmodel
 
 import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -14,21 +13,25 @@ import java.util.concurrent.TimeUnit
 val MINIMUM_FOCUS_TIME_IN_MILLISECONDS = TimeUnit.MINUTES.toMillis(10)
 val HALF_HOUR_IN_MILLISECONDS = TimeUnit.HOURS.toMillis(1) / 2
 
-class PomodoroViewModel : ViewModel(), LifecycleEventObserver {
-    private val _focusUntilTimeInMilliseconds =
-        mutableLongStateOf(getFocusUntilTimeInMilliseconds())
-    val focusUntilTimeInMilliseconds: State<Long> = _focusUntilTimeInMilliseconds
+enum class DisplayMode {
+    Focus,
+    Break,
+}
 
+class PomodoroViewModel : ViewModel(), LifecycleEventObserver {
+    //#region Properties
+    private val _displayMode = mutableStateOf(DisplayMode.Focus)
+    val displayMode: State<DisplayMode> = _displayMode
+    //#endregion
+
+    //#region Focus Timer
     private val _focusTimer = mutableStateOf(
         TimerModel(
             getFocusTimerLengthInMilliseconds(),
             ::onFocusTimerFinished
         )
     )
-
-    val isFocusTimerActive: State<Boolean> = _focusTimer.value.isActive
-    val isFocusTimerFinished: State<Boolean> = _focusTimer.value.isFinished
-    val focusTimerTimeLeftInMilliseconds: State<Long> = _focusTimer.value.timeLeftInMilliseconds
+    val focusTimer: State<TimerModel> = _focusTimer
 
     fun startFocusTimer() {
         refreshFocusUntilTime()
@@ -36,13 +39,11 @@ class PomodoroViewModel : ViewModel(), LifecycleEventObserver {
     }
 
     private fun refreshFocusUntilTime() {
-        _focusUntilTimeInMilliseconds.longValue = getFocusUntilTimeInMilliseconds()
-
         _focusTimer.value.updateTimeLeft(getFocusTimerLengthInMilliseconds())
     }
 
     private fun getFocusTimerLengthInMilliseconds(): Long {
-        return _focusUntilTimeInMilliseconds.longValue - Calendar.getInstance().timeInMillis
+        return getFocusUntilTimeInMilliseconds() - Calendar.getInstance().timeInMillis
     }
 
     private fun onFocusTimerFinished() {
@@ -53,7 +54,7 @@ class PomodoroViewModel : ViewModel(), LifecycleEventObserver {
         val currentTimeInMilliseconds = Calendar.getInstance().timeInMillis
         //return currentTimeInMilliseconds + TimeUnit.SECONDS.toMillis(2)
 
-        val nextBreakLengthInMilliseconds = TimeUnit.MINUTES.toMillis(5)
+        val nextBreakLengthInMilliseconds = getNextBreakLengthInMilliseconds()
 
         val millisecondsSinceLastHalfHour = currentTimeInMilliseconds % HALF_HOUR_IN_MILLISECONDS
         val millisecondsUntilNextHalfHour =
@@ -65,6 +66,21 @@ class PomodoroViewModel : ViewModel(), LifecycleEventObserver {
             return currentTimeInMilliseconds + millisecondsUntilNextHalfHour
         }
     }
+    //#endregion
+
+    //#region Break Timer
+    private val _breakTimer = mutableStateOf(
+        TimerModel(
+            getNextBreakLengthInMilliseconds(),
+            {}
+        )
+    )
+    val breakTimer: State<TimerModel> = _breakTimer
+
+    private fun getNextBreakLengthInMilliseconds(): Long {
+        return TimeUnit.MINUTES.toMillis(5)
+    }
+    //#endregion
 
     override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
         if(event == Lifecycle.Event.ON_RESUME) {

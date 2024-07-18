@@ -14,6 +14,8 @@ import androidx.core.app.NotificationCompat
 import com.chaddyt50.pomodoro.MainActivity
 import com.chaddyt50.pomodoro.R
 import com.chaddyt50.pomodoro.component.TimerDisplay
+import com.chaddyt50.pomodoro.component.TimerMode
+import com.chaddyt50.pomodoro.viewmodel.DisplayMode
 import com.chaddyt50.pomodoro.viewmodel.PomodoroViewModel
 
 
@@ -28,18 +30,36 @@ fun Pomodoro(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        TimerDisplay(
-            context,
-            viewModel.focusUntilTimeInMilliseconds.value,
-            viewModel.focusTimerTimeLeftInMilliseconds.value,
-            viewModel.isFocusTimerActive.value,
-            { viewModel.startFocusTimer() },
-            "Focus until:",
-            "Focus"
-        )
+        when (viewModel.displayMode.value) {
+            DisplayMode.Focus -> {
+                TimerDisplay(
+                    context,
+                    TimerMode.FocusUntil,
+                    viewModel.focusTimer.value.timerLengthInMilliseconds.value,
+                    viewModel.focusTimer.value.timeLeftInMilliseconds.value,
+                    viewModel.focusTimer.value.isActive.value,
+                    { viewModel.startFocusTimer() },
+                    "Focus until:",
+                    "Focus"
+                )
+            }
+
+            DisplayMode.Break -> {
+                TimerDisplay(
+                    context,
+                    TimerMode.Normal,
+                    viewModel.breakTimer.value.timerLengthInMilliseconds.value,
+                    viewModel.breakTimer.value.timeLeftInMilliseconds.value,
+                    viewModel.breakTimer.value.isActive.value,
+                    { viewModel.breakTimer.value.start() },
+                    "Take a break!",
+                    "Start break"
+                )
+            }
+        }
     }
 
-    if (viewModel.isFocusTimerFinished.value) {
+    if (viewModel.focusTimer.value.isFinished.value) {
         sendFocusTimerFinishedNotification(context)
     }
 }

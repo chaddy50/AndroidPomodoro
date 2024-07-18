@@ -10,9 +10,15 @@ import androidx.compose.ui.unit.sp
 import java.util.Calendar
 import java.util.concurrent.TimeUnit
 
+enum class TimerMode {
+    FocusUntil,
+    Normal
+}
+
 @Composable
 fun TimerDisplay(
     context: Context,
+    timerMode: TimerMode,
     timerLengthInMilliseconds: Long,
     timeLeftInMilliseconds: Long,
     isActive: Boolean,
@@ -30,7 +36,15 @@ fun TimerDisplay(
 
     val dateFormatter = android.text.format.DateFormat.getTimeFormat(context)
     val calendar: Calendar = Calendar.getInstance()
-    calendar.timeInMillis = timerLengthInMilliseconds
+
+    when (timerMode) {
+        TimerMode.FocusUntil -> {
+            calendar.timeInMillis += timerLengthInMilliseconds
+        }
+        else -> {
+            calendar.timeInMillis = timerLengthInMilliseconds
+        }
+    }
 
     if (!isActive) {
         Text(

@@ -10,6 +10,9 @@ val COUNT_DOWN_INTERVAL_SECONDS = TimeUnit.SECONDS.toMillis(1)
 
 class TimerModel(timerLengthInMilliseconds: Long, onFinish: () -> Unit) {
     //#region Properties
+    private val _timerLengthInMilliseconds = mutableLongStateOf(timerLengthInMilliseconds)
+    val timerLengthInMilliseconds: State<Long> = _timerLengthInMilliseconds
+
     private val _timeLeftInMilliseconds = mutableLongStateOf(timerLengthInMilliseconds)
     val timeLeftInMilliseconds: State<Long> = _timeLeftInMilliseconds
 
