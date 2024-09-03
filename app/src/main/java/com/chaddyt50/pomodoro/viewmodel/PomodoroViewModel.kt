@@ -84,7 +84,9 @@ class PomodoroViewModel : ViewModel(), LifecycleEventObserver {
 
     override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
         if(event == Lifecycle.Event.ON_RESUME) {
-            refreshFocusUntilTime()
+            if (!_focusTimer.value.isActive.value) {
+                refreshFocusUntilTime()
+            }
         }
     }
 
