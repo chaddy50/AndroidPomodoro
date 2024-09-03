@@ -56,6 +56,7 @@ class TimerModel(timerLengthInMilliseconds: Long, onFinish: () -> Unit) {
                 _isActive.value = false
                 _isFinished.value = true
                 _onFinish()
+                _isFinished.value = false
             }
         }
     }
