@@ -37,6 +37,7 @@ class TimerModel(timerLengthInMilliseconds: Long, onFinish: () -> Unit) {
     }
 
     fun updateTimeLeft(newTimeLeftInMilliseconds: Long) {
+        _timerLengthInMilliseconds.longValue = newTimeLeftInMilliseconds
         _timeLeftInMilliseconds.longValue = newTimeLeftInMilliseconds
         _timer = createTimer()
     }

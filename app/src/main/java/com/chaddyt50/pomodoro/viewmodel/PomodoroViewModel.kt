@@ -43,17 +43,15 @@ class PomodoroViewModel : ViewModel(), LifecycleEventObserver {
     }
 
     private fun getFocusTimerLengthInMilliseconds(): Long {
-        return getFocusUntilTimeInMilliseconds() - Calendar.getInstance().timeInMillis
+        val currentTimeInMilliseconds = Calendar.getInstance().timeInMillis
+        return getFocusUntilTimeInMilliseconds(currentTimeInMilliseconds) - currentTimeInMilliseconds
     }
 
     private fun onFocusTimerFinished() {
         refreshFocusUntilTime()
     }
 
-    private fun getFocusUntilTimeInMilliseconds(): Long {
-        val currentTimeInMilliseconds = Calendar.getInstance().timeInMillis
-        //return currentTimeInMilliseconds + TimeUnit.SECONDS.toMillis(2)
-
+    fun getFocusUntilTimeInMilliseconds(currentTimeInMilliseconds: Long): Long {
         val nextBreakLengthInMilliseconds = getNextBreakLengthInMilliseconds()
 
         val millisecondsSinceLastHalfHour = currentTimeInMilliseconds % HALF_HOUR_IN_MILLISECONDS
