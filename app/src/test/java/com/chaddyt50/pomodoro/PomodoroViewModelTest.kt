@@ -1,6 +1,6 @@
 package com.chaddyt50.pomodoro
 
-import com.chaddyt50.pomodoro.viewmodel.PomodoroViewModel
+import com.chaddy50.pomodoro.viewmodel.PomodoroViewModel
 import org.junit.Test
 
 import org.junit.Assert.*

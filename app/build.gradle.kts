@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace = "com.chaddyt50.pomodoro"
+    namespace = "com.chaddy50.pomodoro"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.chaddyt50.pomodoro"
+        applicationId = "com.chaddy50.pomodoro"
         minSdk = 24
         targetSdk = 34
         versionCode = 1
@@ -59,6 +59,7 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    implementation(libs.material)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

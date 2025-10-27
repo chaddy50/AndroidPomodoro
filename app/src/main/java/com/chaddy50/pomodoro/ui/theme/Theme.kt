@@ -1,6 +1,5 @@
-package com.chaddyt50.pomodoro.ui.theme
+package com.chaddy50.pomodoro.ui.theme
 
-import android.app.Activity
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme

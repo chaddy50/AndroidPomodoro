@@ -1,15 +1,16 @@
-package com.chaddyt50.pomodoro
+package com.chaddy50.pomodoro.notification
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.os.Build
+import com.chaddy50.pomodoro.R
 
 fun createNotificationChannels(context: Context) {
     createFocusTimerNotificationChannel(context)
 }
 
-private fun createFocusTimerNotificationChannel(context: Context) {
+fun createFocusTimerNotificationChannel(context: Context) {
     // Create the NotificationChannel, but only on API 26+ because
     // the NotificationChannel class is not in the Support Library.
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

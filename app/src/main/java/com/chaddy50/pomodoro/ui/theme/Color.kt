@@ -1,4 +1,4 @@
-package com.chaddyt50.pomodoro.ui.theme
+package com.chaddy50.pomodoro.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
