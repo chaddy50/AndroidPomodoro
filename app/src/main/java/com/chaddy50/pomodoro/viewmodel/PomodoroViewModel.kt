@@ -27,6 +27,10 @@ class PomodoroViewModel : ViewModel(), LifecycleEventObserver {
     private val _timeLeftInMilliseconds = MutableStateFlow<Long>(getFocusTimerLengthInMilliseconds())
     val timeLeftInMilliseconds = _timeLeftInMilliseconds.asStateFlow()
 
+    private val _focusUntilTimeInMilliseconds = MutableStateFlow<Long>(
+        getFocusUntilTimeInMilliseconds(Calendar.getInstance().timeInMillis))
+    val focusUntilTimeInMilliseconds = _focusUntilTimeInMilliseconds.asStateFlow()
+
     private val _isTimerActive = MutableStateFlow(false)
     val isTimerActive = _isTimerActive.asStateFlow()
 

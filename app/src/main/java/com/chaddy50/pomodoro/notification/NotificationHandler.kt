@@ -12,7 +12,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.PermissionChecker.PERMISSION_GRANTED
-import com.chaddy50.pomodoro.MainActivity
+import com.chaddy50.pomodoro.PomodoroApp
 import com.chaddy50.pomodoro.R
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
@@ -27,7 +27,7 @@ class NotificationHandler(
     }
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-    fun requestPermission(mainActivity: MainActivity) {
+    fun requestPermission(mainActivity: PomodoroApp) {
         when {
             ActivityCompat.shouldShowRequestPermissionRationale(mainActivity, Manifest.permission.POST_NOTIFICATIONS) -> {
                 MaterialAlertDialogBuilder(mainActivity)
@@ -47,7 +47,7 @@ class NotificationHandler(
     }
 
     fun sendFocusTimerFinishedNotification() {
-        val activityIntent = Intent(context, MainActivity::class.java)
+        val activityIntent = Intent(context, PomodoroApp::class.java)
 
         val activityPendingIntent = PendingIntent.getActivity(
             context,
