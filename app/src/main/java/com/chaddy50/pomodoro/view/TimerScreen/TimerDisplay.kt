@@ -62,10 +62,12 @@ fun TimerDisplay(
     startTimer: () -> Unit,
     focusUntilTimeInMilliseconds: Long,
 ) {
-    LaunchedEffect(isTimerActive) {
-        when (isTimerActive) {
-            true -> hideSystemUI(context)
-            false -> showSystemUI(context)
+    LaunchedEffect(isTimerActive, timerType) {
+        if (isTimerActive && (timerType == TimerType.FocusUntil)) {
+            hideSystemUI(context)
+        }
+        else {
+            showSystemUI(context)
         }
     }
 
