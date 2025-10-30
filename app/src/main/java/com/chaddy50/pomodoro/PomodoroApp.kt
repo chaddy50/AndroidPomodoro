@@ -16,7 +16,7 @@ import androidx.compose.ui.Modifier
 import com.chaddy50.pomodoro.notification.NotificationHandler
 import com.chaddy50.pomodoro.notification.createNotificationChannels
 import com.chaddy50.pomodoro.ui.theme.PomodoroTheme
-import com.chaddy50.pomodoro.screen.TimerScreen
+import com.chaddy50.pomodoro.view.TimerScreen.TimerScreen
 import com.chaddy50.pomodoro.viewmodel.PomodoroViewModel
 
 class PomodoroApp : ComponentActivity() {

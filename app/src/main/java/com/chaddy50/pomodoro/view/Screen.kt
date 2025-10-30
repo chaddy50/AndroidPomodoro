@@ -1,4 +1,4 @@
-package com.chaddy50.pomodoro.screen
+package com.chaddy50.pomodoro.view
 
 import android.content.Context
 import androidx.compose.runtime.Composable

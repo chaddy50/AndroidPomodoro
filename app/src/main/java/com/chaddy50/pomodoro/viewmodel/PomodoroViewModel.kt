@@ -5,128 +5,75 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import java.util.Calendar
+import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
 
 val COUNT_DOWN_INTERVAL_SECONDS = TimeUnit.SECONDS.toMillis(1)
-val MINIMUM_FOCUS_TIME_IN_MILLISECONDS = TimeUnit.MINUTES.toMillis(10)
 val HALF_HOUR_IN_MILLISECONDS = TimeUnit.HOURS.toMillis(1) / 2
-
-enum class TimerMode {
-    FocusUntil,
-    Break
-}
 
 class PomodoroViewModel : ViewModel(), LifecycleEventObserver {
     //#region Properties
-    private val _timerLengthInMilliseconds = MutableStateFlow<Long>(getFocusTimerLengthInMilliseconds())
-    val timerLengthInMilliseconds = _timerLengthInMilliseconds.asStateFlow()
+    private val _timers = MutableStateFlow(
+        listOf(
+            PomodoroTimer.create(1, TimerType.FocusUntil, TimerType.LongBreak),
+            PomodoroTimer.create(2, TimerType.LongBreak),
+        )
+    )
+    val timers = _timers.asStateFlow()
 
-    private val _timeLeftInMilliseconds = MutableStateFlow<Long>(getFocusTimerLengthInMilliseconds())
-    val timeLeftInMilliseconds = _timeLeftInMilliseconds.asStateFlow()
+    private val _activeTimerID = MutableStateFlow(1)
+    val activeTimerID = _activeTimerID.asStateFlow()
 
-    private val _focusUntilTimeInMilliseconds = MutableStateFlow<Long>(
-        getFocusUntilTimeInMilliseconds(Calendar.getInstance().timeInMillis))
-    val focusUntilTimeInMilliseconds = _focusUntilTimeInMilliseconds.asStateFlow()
+    private val _timerFinishedEvent = MutableSharedFlow<Unit>()
+    val timerFinishedEvent = _timerFinishedEvent
 
-    private val _isTimerActive = MutableStateFlow(false)
-    val isTimerActive = _isTimerActive.asStateFlow()
-
-    private val _isFinished = MutableStateFlow(false)
-    val isFinished = _isFinished.asStateFlow()
-
-    private val _timerMode = MutableStateFlow(TimerMode.FocusUntil)
-    val timerMode = _timerMode.asStateFlow()
-    //#endregion
-
-    private var _timer = createTimer()
+    private var _countDownTimer: CountDownTimer? = null
 
     //#region Public Functions
-    fun startTimer() {
-        if (!_isTimerActive.value) {
-            _isTimerActive.value = true
-            _isFinished.value = false
-            _timer.start()
-        }
+    fun startTimer(timerID: Int?) {
+        val timer = _timers.value.find { it.id == timerID } ?: return
+
+        _countDownTimer?.cancel()
+        _activeTimerID.value = timerID ?: -1
+
+        val updatedTimer = timer.copy(isActive = true)
+        _timers.value = _timers.value.map { if (it.id == timer.id) updatedTimer else it}
+
+        _countDownTimer = createTimer(updatedTimer).also { it.start() }
     }
     //#endregion
 
     //#region Private Functions
-    private fun refreshFocusUntilTime() {
-        when (_timerMode.value) {
-            TimerMode.FocusUntil -> updateTimeLeft(getFocusTimerLengthInMilliseconds())
-            else -> {}
-        }
-    }
-
-    private fun updateTimeLeft(newTimeLeftInMilliseconds: Long) {
-        _timerLengthInMilliseconds.value = newTimeLeftInMilliseconds
-        _timeLeftInMilliseconds.value = newTimeLeftInMilliseconds
-        _timer = createTimer()
-    }
-
-    private fun getFocusTimerLengthInMilliseconds(): Long {
-        val currentTimeInMilliseconds = Calendar.getInstance().timeInMillis
-        return getFocusUntilTimeInMilliseconds(currentTimeInMilliseconds) - currentTimeInMilliseconds
-    }
-
-    fun getFocusUntilTimeInMilliseconds(currentTimeInMilliseconds: Long): Long {
-        val nextBreakLengthInMilliseconds = getNextBreakLengthInMilliseconds()
-
-        val millisecondsSinceLastHalfHour = currentTimeInMilliseconds % HALF_HOUR_IN_MILLISECONDS
-        val millisecondsUntilNextHalfHour =
-            HALF_HOUR_IN_MILLISECONDS - millisecondsSinceLastHalfHour - nextBreakLengthInMilliseconds
-
-        if (millisecondsUntilNextHalfHour < MINIMUM_FOCUS_TIME_IN_MILLISECONDS) {
-            return currentTimeInMilliseconds + millisecondsUntilNextHalfHour + HALF_HOUR_IN_MILLISECONDS
-        } else {
-            return currentTimeInMilliseconds + millisecondsUntilNextHalfHour
-        }
-    }
-
-    private fun onFocusTimerFinished() {
-        refreshFocusUntilTime()
-
-        when (_timerMode.value) {
-            TimerMode.FocusUntil -> {
-                _timerMode.value = TimerMode.Break
-                updateTimeLeft(getNextBreakLengthInMilliseconds())
-            }
-            TimerMode.Break ->
-                _timerMode.value = TimerMode.FocusUntil
-        }
-    }
-
-    private fun getNextBreakLengthInMilliseconds(): Long {
-        return TimeUnit.MINUTES.toMillis(5)
-    }
-
-    private fun createTimer(): CountDownTimer {
+    private fun createTimer(timer: PomodoroTimer): CountDownTimer {
         return object : CountDownTimer(
-            _timeLeftInMilliseconds.value,
+            timer.timeLeftInMilliseconds,
             COUNT_DOWN_INTERVAL_SECONDS
         ) {
             override fun onTick(millisecondsUntilFinished: Long) {
-                _timeLeftInMilliseconds.value = millisecondsUntilFinished
+                val updatedTimer = timer.copy(timeLeftInMilliseconds = millisecondsUntilFinished)
+                _timers.value = _timers.value.map { if (it.id == timer.id) updatedTimer else it}
             }
 
             override fun onFinish() {
-                _isTimerActive.value = false
-                _isFinished.value = true
-                onFocusTimerFinished()
+                timer.timeLeftInMilliseconds = 0
+                _timers.value = _timers.value.toList()
+
+                if (_timers.value.size >= activeTimerID.value) {
+                    _activeTimerID.value = _activeTimerID.value + 1
+                }
+
+                viewModelScope.launch {
+                    _timerFinishedEvent.emit(Unit)
+                }
             }
         }
     }
     //#endregion
 
-    override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
-        if(event == Lifecycle.Event.ON_RESUME) {
-            if (!isTimerActive.value) {
-                refreshFocusUntilTime()
-            }
-        }
-    }
+    override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {}
 
 }

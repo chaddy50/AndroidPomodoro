@@ -1,7 +1,10 @@
-package com.chaddy50.pomodoro.view.composable
+package com.chaddy50.pomodoro.view.TimerScreen
 
+import android.app.Activity
 import android.content.Context
 import android.text.format.DateFormat
+import android.view.View
+import android.view.WindowManager
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -21,6 +24,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.StrokeCap
@@ -29,7 +33,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.chaddy50.pomodoro.viewmodel.TimerMode
+import androidx.core.view.WindowCompat
+import com.chaddy50.pomodoro.viewmodel.TimerType
 import java.util.Calendar
 import java.util.concurrent.TimeUnit
 
@@ -41,7 +46,7 @@ private fun TimerDisplayPreview() {
         false,
         TimeUnit.MINUTES.toMillis(25),
         TimeUnit.MINUTES.toMillis(25),
-        TimerMode.FocusUntil,
+        TimerType.FocusUntil,
         {},
         Calendar.getInstance().timeInMillis
     )
@@ -53,10 +58,17 @@ fun TimerDisplay(
     isTimerActive: Boolean,
     timeLeftInMilliseconds: Long,
     timerLengthInMilliseconds: Long,
-    timerMode: TimerMode,
+    timerType: TimerType,
     startTimer: () -> Unit,
     focusUntilTimeInMilliseconds: Long,
 ) {
+    LaunchedEffect(isTimerActive) {
+        when (isTimerActive) {
+            true -> hideSystemUI(context)
+            false -> showSystemUI(context)
+        }
+    }
+
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
@@ -86,7 +98,7 @@ fun TimerDisplay(
             ) {
                 Text(
                     getTimerLabel(
-                        timerMode,
+                        timerType,
                         isTimerActive
                     ),
                     fontSize = 30.sp,
@@ -99,7 +111,7 @@ fun TimerDisplay(
                     getTimerDisplay(
                         context,
                         isTimerActive,
-                        timerMode,
+                        timerType,
                         timeLeftInMilliseconds,
                         focusUntilTimeInMilliseconds
                     ),
@@ -129,29 +141,55 @@ fun TimerDisplay(
 }
 
 //#region Private Functions
+private fun hideSystemUI(context: Context) {
+    if (context is Activity) {
+        val window = context.window
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+
+        // I'm purposefully using the legacy flags because they result in a smoother transition when the view re-sizes
+        window.decorView.systemUiVisibility =
+            View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY or
+                    View.SYSTEM_UI_FLAG_FULLSCREEN or
+                    View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+
+        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+    }
+}
+
+private fun showSystemUI(context: Context) {
+    if (context is Activity) {
+        val window = context.window
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+
+        // I'm purposefully using the legacy flags because they result in a smoother transition when the view re-sizes
+        window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_VISIBLE
+        window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+    }
+}
+
 private fun getTimerLabel(
-    timerMode: TimerMode,
+    timerType: TimerType,
     isTimerActive: Boolean,
 ): String {
-    return when (timerMode) {
-        TimerMode.FocusUntil -> {
+    return when (timerType) {
+        TimerType.FocusUntil -> {
             return when (isTimerActive) {
                 true -> ""
                 false -> "Focus until"
             }
         }
-        TimerMode.Break -> "Take a break"
+        else -> "Take a break"
     }
 }
 
 private fun getTimerDisplay(
     context: Context,
     isTimerActive: Boolean,
-    timerMode: TimerMode,
+    timerType: TimerType,
     timeLeftInMilliseconds: Long,
     focusUntilTimeInMilliseconds: Long
 ): String {
-    if ((timerMode == TimerMode.FocusUntil) && !isTimerActive) {
+    if ((timerType == TimerType.FocusUntil) && !isTimerActive) {
         return formatTimeForDisplay(context, focusUntilTimeInMilliseconds)
     }
     else {
