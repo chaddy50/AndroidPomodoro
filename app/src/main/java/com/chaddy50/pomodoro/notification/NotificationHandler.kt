@@ -46,7 +46,19 @@ class NotificationHandler(
         }
     }
 
+    fun sendBreakTimerFinishedNotification() {
+        sendNotification("Break time is over", "Get back to work!")
+    }
+
     fun sendFocusTimerFinishedNotification() {
+        sendNotification("Focus time is over", "Take a break!")
+    }
+
+    private fun sendNotification(
+        title: String,
+        content: String
+    ) {
+
         val activityIntent = Intent(context, PomodoroApp::class.java)
 
         val activityPendingIntent = PendingIntent.getActivity(
@@ -58,8 +70,8 @@ class NotificationHandler(
 
         val builder = NotificationCompat.Builder(context, "Notifications")
             .setSmallIcon(R.drawable.ic_launcher_foreground)
-            .setContentTitle("Focus time is over")
-            .setContentText("Take a break!")
+            .setContentTitle(title)
+            .setContentText(content)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setContentIntent(activityPendingIntent)
 

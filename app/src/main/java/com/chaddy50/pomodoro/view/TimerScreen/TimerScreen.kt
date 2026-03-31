@@ -33,8 +33,14 @@ object TimerScreen : Screen {
         val focusUntilTimeInMilliseconds = activeTimer?.focusUntilTimeInMilliseconds
 
         LaunchedEffect(Unit) {
-            viewModel.timerFinishedEvent.collect {
+            viewModel.focusTimerFinishedEvent.collect {
                 notificationHandler.sendFocusTimerFinishedNotification()
+            }
+        }
+
+        LaunchedEffect(Unit) {
+            viewModel.breakTimerFinishedEvent.collect {
+                notificationHandler.sendBreakTimerFinishedNotification()
             }
         }
 

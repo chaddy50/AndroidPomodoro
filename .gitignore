@@ -13,3 +13,5 @@
 .externalNativeBuild
 .cxx
 local.properties
+/CODE_REVIEW.md
+/CLAUDE.md
