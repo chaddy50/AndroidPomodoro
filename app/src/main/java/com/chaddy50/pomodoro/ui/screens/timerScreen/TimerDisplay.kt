@@ -104,13 +104,7 @@ fun TimerDisplay(
                 )
 
                 Text(
-                    getTimerDisplay(
-                        context,
-                        uiState.isTimerActive,
-                        uiState.timerType,
-                        uiState.timeLeftInMilliseconds,
-                        uiState.focusUntilTimeInMilliseconds
-                    ),
+                    getTimerDisplay(context, uiState),
                     fontSize = 75.sp,
                     modifier = Modifier
                         .align(Alignment.Center)
@@ -173,19 +167,12 @@ private fun getTimerLabel(
     }
 }
 
-private fun getTimerDisplay(
-    context: Context,
-    isTimerActive: Boolean,
-    timerType: TimerType,
-    timeLeftInMilliseconds: Long,
-    focusUntilTimeInMilliseconds: Long
-): String {
-    if ((timerType == TimerType.FocusUntil) && !isTimerActive) {
-        return formatTimeForDisplay(context, focusUntilTimeInMilliseconds)
-    }
-    else {
-        val minutes = TimeUnit.MILLISECONDS.toMinutes(timeLeftInMilliseconds)
-        val seconds = TimeUnit.MILLISECONDS.toSeconds(timeLeftInMilliseconds - TimeUnit.MINUTES.toMillis(minutes))
+private fun getTimerDisplay(context: Context, uiState: TimerUiState): String {
+    if (uiState.timerType == TimerType.FocusUntil && !uiState.isTimerActive) {
+        return formatTimeForDisplay(context, uiState.focusUntilTimeInMilliseconds)
+    } else {
+        val minutes = TimeUnit.MILLISECONDS.toMinutes(uiState.timeLeftInMilliseconds)
+        val seconds = TimeUnit.MILLISECONDS.toSeconds(uiState.timeLeftInMilliseconds - TimeUnit.MINUTES.toMillis(minutes))
         return "${minutes}:${seconds.toString().padStart(2, '0')}"
     }
 }
