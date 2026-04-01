@@ -168,12 +168,7 @@ private fun getTimerLabel(
     isTimerActive: Boolean,
 ): String {
     return when (timerType) {
-        TimerType.FocusUntil -> {
-            return when (isTimerActive) {
-                true -> ""
-                false -> "Focus until"
-            }
-        }
+        TimerType.FocusUntil -> if (isTimerActive) "" else "Focus until"
         else -> "Take a break"
     }
 }
@@ -195,13 +190,8 @@ private fun getTimerDisplay(
     }
 }
 
-private fun getTimerButtonIcon(
-    isTimerActive: Boolean
-): ImageVector {
-    return when(isTimerActive) {
-        true -> Icons.Filled.Close
-        false -> Icons.Filled.PlayArrow
-    }
+private fun getTimerButtonIcon(isTimerActive: Boolean): ImageVector {
+    return if (isTimerActive) Icons.Filled.Close else Icons.Filled.PlayArrow
 }
 
 private fun formatTimeForDisplay(context: Context, timeInMilliseconds: Long): String {
