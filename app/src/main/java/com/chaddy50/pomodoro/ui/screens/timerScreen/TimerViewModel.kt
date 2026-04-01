@@ -5,6 +5,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
@@ -38,8 +40,11 @@ class TimerViewModel : ViewModel() {
         initialValue = TimerUiState()
     )
 
-    val focusTimerFinishedEvent = MutableSharedFlow<Unit>()
-    val breakTimerFinishedEvent = MutableSharedFlow<Unit>()
+    private val _focusTimerFinishedEvent = MutableSharedFlow<Unit>()
+    val focusTimerFinishedEvent: SharedFlow<Unit> = _focusTimerFinishedEvent.asSharedFlow()
+
+    private val _breakTimerFinishedEvent = MutableSharedFlow<Unit>()
+    val breakTimerFinishedEvent: SharedFlow<Unit> = _breakTimerFinishedEvent.asSharedFlow()
 
     private var _countDownTimer: CountDownTimer? = null
 
@@ -107,14 +112,14 @@ class TimerViewModel : ViewModel() {
                     TimerType.FocusUntil -> {
                         activateNextTimer()
                         viewModelScope.launch {
-                            focusTimerFinishedEvent.emit(Unit)
+                            _focusTimerFinishedEvent.emit(Unit)
                         }
                     }
                     else -> {
                         addNextTimerAndBreak()
                         activateNextTimer()
                         viewModelScope.launch {
-                            breakTimerFinishedEvent.emit(Unit)
+                            _breakTimerFinishedEvent.emit(Unit)
                         }
                     }
                 }
