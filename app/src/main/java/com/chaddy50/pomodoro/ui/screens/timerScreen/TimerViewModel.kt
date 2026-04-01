@@ -79,8 +79,10 @@ class TimerViewModel : ViewModel() {
     }
 
     fun activateNextTimer() {
-        if (_timers.value.size >= _activeTimerID.value) {
-            _activeTimerID.value = _activeTimerID.value + 1
+        val currentIndex = _timers.value.indexOfFirst { it.id == _activeTimerID.value }
+        val nextTimer = _timers.value.getOrNull(currentIndex + 1)
+        if (nextTimer != null) {
+            _activeTimerID.value = nextTimer.id
         }
     }
     //#endregion
