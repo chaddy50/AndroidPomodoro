@@ -97,8 +97,8 @@ class TimerViewModel : ViewModel() {
             }
 
             override fun onFinish() {
-                timer.timeLeftInMilliseconds = 0
-                _timers.value = _timers.value.toList()
+                val finishedTimer = timer.copy(timeLeftInMilliseconds = 0)
+                _timers.value = _timers.value.map { if (it.id == timer.id) finishedTimer else it }
 
                 when (timer.type) {
                     TimerType.FocusUntil -> {

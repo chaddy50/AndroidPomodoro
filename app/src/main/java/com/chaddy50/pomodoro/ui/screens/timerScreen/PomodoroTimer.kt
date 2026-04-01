@@ -10,11 +10,11 @@ enum class TimerType {
 
 data class PomodoroTimer(
     val id: Int,
-    var type: TimerType,
-    var isActive: Boolean,
-    var lengthInMilliseconds: Long,
-    var timeLeftInMilliseconds: Long,
-    var focusUntilTimeInMilliseconds: Long,
+    val type: TimerType,
+    val isActive: Boolean,
+    val lengthInMilliseconds: Long,
+    val timeLeftInMilliseconds: Long,
+    val focusUntilTimeInMilliseconds: Long,
 ) {
     companion object {
         fun create(
