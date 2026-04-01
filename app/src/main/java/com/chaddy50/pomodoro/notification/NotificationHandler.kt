@@ -1,6 +1,7 @@
 package com.chaddy50.pomodoro.notification
 
 import android.Manifest
+import android.app.Activity
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
@@ -27,10 +28,10 @@ class NotificationHandler(
     }
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-    fun requestPermission(mainActivity: PomodoroApp) {
+    fun requestPermission(activity: Activity) {
         when {
-            ActivityCompat.shouldShowRequestPermissionRationale(mainActivity, Manifest.permission.POST_NOTIFICATIONS) -> {
-                MaterialAlertDialogBuilder(mainActivity)
+            ActivityCompat.shouldShowRequestPermissionRationale(activity, Manifest.permission.POST_NOTIFICATIONS) -> {
+                MaterialAlertDialogBuilder(activity)
                     .setTitle("Notification Permission Needed")
                     .setMessage("This app needs notification access to notify you when a focus period ends. Without it, you won’t get notifications when a period ends.")
                     .setPositiveButton("OK") { _, _ ->
