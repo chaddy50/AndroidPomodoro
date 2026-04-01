@@ -1,10 +1,7 @@
 package com.chaddy50.pomodoro.ui.screens.timerScreen
 
-import android.app.Activity
 import android.content.Context
 import android.text.format.DateFormat
-import android.view.View
-import android.view.WindowManager
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,7 +21,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.StrokeCap
@@ -33,7 +29,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.view.WindowCompat
 import java.util.Calendar
 import java.util.concurrent.TimeUnit
 
@@ -58,14 +53,6 @@ fun TimerDisplay(
     onStopTimer: () -> Unit,
 ) {
     val context = LocalContext.current
-
-    LaunchedEffect(uiState.isTimerActive, uiState.timerType) {
-        if (uiState.isTimerActive && (uiState.timerType == TimerType.FocusUntil)) {
-            hideSystemUI(context)
-        } else {
-            showSystemUI(context)
-        }
-    }
 
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -133,32 +120,6 @@ fun TimerDisplay(
 }
 
 //#region Private Functions
-private fun hideSystemUI(context: Context) {
-    if (context is Activity) {
-        val window = context.window
-        WindowCompat.setDecorFitsSystemWindows(window, false)
-
-        // I'm purposefully using the legacy flags because they result in a smoother transition when the view re-sizes
-        window.decorView.systemUiVisibility =
-            View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY or
-                    View.SYSTEM_UI_FLAG_FULLSCREEN or
-                    View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-
-        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-    }
-}
-
-private fun showSystemUI(context: Context) {
-    if (context is Activity) {
-        val window = context.window
-        WindowCompat.setDecorFitsSystemWindows(window, false)
-
-        // I'm purposefully using the legacy flags because they result in a smoother transition when the view re-sizes
-        window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_VISIBLE
-        window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-    }
-}
-
 private fun getTimerLabel(
     timerType: TimerType,
     isTimerActive: Boolean,

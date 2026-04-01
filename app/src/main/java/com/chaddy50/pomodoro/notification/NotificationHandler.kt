@@ -17,10 +17,7 @@ import com.chaddy50.pomodoro.PomodoroApp
 import com.chaddy50.pomodoro.R
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
-class NotificationHandler(
-    private val context: Context,
-    private val requestPermissionLauncher: ActivityResultLauncher<String>
-) {
+class NotificationHandler(private val context: Context) {
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     fun hasPermission(): Boolean {
         val permission = ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS)
@@ -28,22 +25,22 @@ class NotificationHandler(
     }
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-    fun requestPermission(activity: Activity) {
+    fun requestPermission(activity: Activity, launcher: ActivityResultLauncher<String>) {
         when {
             ActivityCompat.shouldShowRequestPermissionRationale(activity, Manifest.permission.POST_NOTIFICATIONS) -> {
                 MaterialAlertDialogBuilder(activity)
                     .setTitle("Notification Permission Needed")
-                    .setMessage("This app needs notification access to notify you when a focus period ends. Without it, you won’t get notifications when a period ends.")
+                    .setMessage("This app needs notification access to notify you when a focus period ends. Without it, you won't get notifications when a period ends.")
                     .setPositiveButton("OK") { _, _ ->
                         // User understood — request permission again
-                        requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                        launcher.launch(Manifest.permission.POST_NOTIFICATIONS)
                     }
                     .setNegativeButton("Cancel") { dialog, _ ->
-                        dialog.dismiss() // Respect user’s decision
+                        dialog.dismiss() // Respect user's decision
                     }
                     .show()
             }
-            else -> requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            else -> launcher.launch(Manifest.permission.POST_NOTIFICATIONS)
         }
     }
 
@@ -55,11 +52,7 @@ class NotificationHandler(
         sendNotification("Focus time is over", "Take a break!")
     }
 
-    private fun sendNotification(
-        title: String,
-        content: String
-    ) {
-
+    private fun sendNotification(title: String, content: String) {
         val activityIntent = Intent(context, PomodoroApp::class.java)
 
         val activityPendingIntent = PendingIntent.getActivity(
