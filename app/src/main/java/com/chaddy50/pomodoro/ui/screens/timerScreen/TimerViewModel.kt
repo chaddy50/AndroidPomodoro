@@ -1,9 +1,6 @@
 package com.chaddy50.pomodoro.ui.screens.timerScreen
 
 import android.os.CountDownTimer
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
-import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -21,7 +18,7 @@ private val MINIMUM_FOCUS_TIME_IN_MILLISECONDS = TimeUnit.MINUTES.toMillis(15)
 private val SHORT_BREAK_TIME_IN_MILLISECONDS = TimeUnit.MINUTES.toMillis(5)
 private val LONG_BREAK_TIME_IN_MILLISECONDS = TimeUnit.MINUTES.toMillis(10)
 
-class TimerViewModel : ViewModel(), LifecycleEventObserver {
+class TimerViewModel : ViewModel() {
     //#region Properties
     private val _timers = MutableStateFlow(listOf<PomodoroTimer>())
     private val _activeTimerID = MutableStateFlow(0)
@@ -149,5 +146,4 @@ class TimerViewModel : ViewModel(), LifecycleEventObserver {
     }
     //#endregion
 
-    override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {}
 }

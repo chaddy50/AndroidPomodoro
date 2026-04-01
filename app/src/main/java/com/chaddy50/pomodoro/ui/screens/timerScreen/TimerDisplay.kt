@@ -41,7 +41,6 @@ import java.util.concurrent.TimeUnit
 @Composable
 private fun TimerDisplayPreview() {
     TimerDisplay(
-        LocalContext.current,
         TimerUiState(
             timeLeftInMilliseconds = TimeUnit.MINUTES.toMillis(25),
             timerLengthInMilliseconds = TimeUnit.MINUTES.toMillis(25),
@@ -53,10 +52,11 @@ private fun TimerDisplayPreview() {
 
 @Composable
 fun TimerDisplay(
-    context: Context,
     uiState: TimerUiState,
     startTimer: () -> Unit,
 ) {
+    val context = LocalContext.current
+
     LaunchedEffect(uiState.isTimerActive, uiState.timerType) {
         if (uiState.isTimerActive && (uiState.timerType == TimerType.FocusUntil)) {
             hideSystemUI(context)
