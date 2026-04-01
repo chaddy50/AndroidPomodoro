@@ -79,7 +79,10 @@ fun TimerDisplay(
             contentAlignment = Alignment.Center
         ) {
             CircularProgressIndicator(
-                progress = { 1f - (uiState.timeLeftInMilliseconds.toFloat() / uiState.timerLengthInMilliseconds.toFloat()) },
+                progress = {
+                    if (uiState.timerLengthInMilliseconds == 0L) 0f
+                    else 1f - (uiState.timeLeftInMilliseconds.toFloat() / uiState.timerLengthInMilliseconds.toFloat())
+                },
                 modifier = Modifier
                     .matchParentSize(),
                 color = MaterialTheme.colorScheme.primary,
