@@ -7,7 +7,6 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -24,14 +23,13 @@ import kotlinx.coroutines.launch
 class PomodoroApp : ComponentActivity() {
     private val viewModel: TimerViewModel by viewModels()
 
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         createNotificationChannels(this)
         enableEdgeToEdge()
 
         val notificationHandler = NotificationHandler(this, requestPermissionLauncher)
-        if (!notificationHandler.hasPermission()) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && !notificationHandler.hasPermission()) {
             notificationHandler.requestPermission(this)
         }
 
