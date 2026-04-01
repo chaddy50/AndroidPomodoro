@@ -1,18 +1,13 @@
 package com.chaddyt50.pomodoro
 
-import com.chaddy50.pomodoro.viewmodel.PomodoroViewModel
+import com.chaddy50.pomodoro.ui.screens.timerScreen.TimerViewModel
 import org.junit.Test
 
 import org.junit.Assert.*
 
-/**
- * Example local unit test, which will execute on the development machine (host).
- *
- * See [testing documentation](http://d.android.com/tools/testing).
- */
-class PomodoroViewModelTest {
+class TimerViewModelTest {
 
-    private val viewModel = PomodoroViewModel()
+    private val viewModel = TimerViewModel()
     private val todayAt0800 = 1726405200000 // 09/15/24 0800
     private val todayAt0820 = 1726406400000 // 09/15/24 0820
     private val todayAt0825 = 1726406700000 // 09/15/24 0825

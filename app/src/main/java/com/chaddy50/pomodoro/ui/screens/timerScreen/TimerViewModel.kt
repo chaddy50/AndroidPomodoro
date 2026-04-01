@@ -1,8 +1,6 @@
-package com.chaddy50.pomodoro.viewmodel
+package com.chaddy50.pomodoro.ui.screens.timerScreen
 
-import android.os.Build
 import android.os.CountDownTimer
-import androidx.annotation.RequiresApi
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
@@ -10,30 +8,41 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.util.Calendar
 import java.util.concurrent.TimeUnit
 
-val COUNT_DOWN_INTERVAL_SECONDS = TimeUnit.SECONDS.toMillis(1)
-val HALF_HOUR_IN_MILLISECONDS = TimeUnit.HOURS.toMillis(1) / 2
-val MINIMUM_FOCUS_TIME_IN_MILLISECONDS = TimeUnit.MINUTES.toMillis(15)
-val SHORT_BREAK_TIME_IN_MILLISECONDS = TimeUnit.MINUTES.toMillis(5)
-val LONG_BREAK_TIME_IN_MILLISECONDS = TimeUnit.MINUTES.toMillis(10)
+private val COUNT_DOWN_INTERVAL_SECONDS = TimeUnit.SECONDS.toMillis(1)
+private val HALF_HOUR_IN_MILLISECONDS = TimeUnit.HOURS.toMillis(1) / 2
+private val MINIMUM_FOCUS_TIME_IN_MILLISECONDS = TimeUnit.MINUTES.toMillis(15)
+private val SHORT_BREAK_TIME_IN_MILLISECONDS = TimeUnit.MINUTES.toMillis(5)
+private val LONG_BREAK_TIME_IN_MILLISECONDS = TimeUnit.MINUTES.toMillis(10)
 
-class PomodoroViewModel : ViewModel(), LifecycleEventObserver {
+class TimerViewModel : ViewModel(), LifecycleEventObserver {
     //#region Properties
     private val _timers = MutableStateFlow(listOf<PomodoroTimer>())
-    val timers = _timers.asStateFlow()
-
     private val _activeTimerID = MutableStateFlow(0)
-    val activeTimerID = _activeTimerID.asStateFlow()
 
-    private val _focusTimerFinishedEvent = MutableSharedFlow<Unit>()
-    val focusTimerFinishedEvent = _focusTimerFinishedEvent
+    val uiState = combine(_timers, _activeTimerID) { timers, activeTimerID ->
+        val activeTimer = timers.find { it.id == activeTimerID }
+        TimerUiState(
+            isTimerActive = activeTimer?.isActive ?: false,
+            timerType = activeTimer?.type ?: TimerType.FocusUntil,
+            timeLeftInMilliseconds = activeTimer?.timeLeftInMilliseconds ?: 0L,
+            timerLengthInMilliseconds = activeTimer?.lengthInMilliseconds ?: 0L,
+            focusUntilTimeInMilliseconds = activeTimer?.focusUntilTimeInMilliseconds ?: 0L,
+        )
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = TimerUiState()
+    )
 
-    private val _breakTimerFinishedEvent = MutableSharedFlow<Unit>()
-    val breakTimerFinishedEvent = _breakTimerFinishedEvent
+    val focusTimerFinishedEvent = MutableSharedFlow<Unit>()
+    val breakTimerFinishedEvent = MutableSharedFlow<Unit>()
 
     private var _countDownTimer: CountDownTimer? = null
 
@@ -46,19 +55,17 @@ class PomodoroViewModel : ViewModel(), LifecycleEventObserver {
     }
 
     //#region Public Functions
-    fun startTimer(timerID: Int?) {
-        val timer = _timers.value.find { it.id == timerID } ?: return
+    fun startTimer() {
+        val timer = _timers.value.find { it.id == _activeTimerID.value } ?: return
 
         _countDownTimer?.cancel()
-        _activeTimerID.value = timerID ?: -1
 
         val updatedTimer = timer.copy(isActive = true)
-        _timers.value = _timers.value.map { if (it.id == timer.id) updatedTimer else it}
+        _timers.value = _timers.value.map { if (it.id == timer.id) updatedTimer else it }
 
         _countDownTimer = createTimer(updatedTimer).also { it.start() }
     }
 
-    @RequiresApi(Build.VERSION_CODES.GINGERBREAD)
     fun addNextTimerAndBreak() {
         var focusTimerLengthInMilliseconds = getFocusTimerLengthInMilliseconds()
 
@@ -75,7 +82,7 @@ class PomodoroViewModel : ViewModel(), LifecycleEventObserver {
     }
 
     fun activateNextTimer() {
-        if (_timers.value.size >= activeTimerID.value) {
+        if (_timers.value.size >= _activeTimerID.value) {
             _activeTimerID.value = _activeTimerID.value + 1
         }
     }
@@ -100,14 +107,14 @@ class PomodoroViewModel : ViewModel(), LifecycleEventObserver {
                     TimerType.FocusUntil -> {
                         activateNextTimer()
                         viewModelScope.launch {
-                            _focusTimerFinishedEvent.emit(Unit)
+                            focusTimerFinishedEvent.emit(Unit)
                         }
                     }
                     else -> {
                         addNextTimerAndBreak()
                         activateNextTimer()
                         viewModelScope.launch {
-                            _breakTimerFinishedEvent.emit(Unit)
+                            breakTimerFinishedEvent.emit(Unit)
                         }
                     }
                 }
@@ -128,7 +135,7 @@ class PomodoroViewModel : ViewModel(), LifecycleEventObserver {
         return getFocusUntilTimeInMilliseconds() - currentTimeInMilliseconds
     }
 
-    private fun getFocusUntilTimeInMilliseconds(
+    internal fun getFocusUntilTimeInMilliseconds(
         currentTimeInMilliseconds: Long = Calendar.getInstance().timeInMillis,
     ): Long {
         val millisecondsSinceLastHalfHour = currentTimeInMilliseconds % HALF_HOUR_IN_MILLISECONDS

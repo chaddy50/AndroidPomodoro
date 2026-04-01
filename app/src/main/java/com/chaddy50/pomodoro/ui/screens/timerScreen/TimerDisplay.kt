@@ -1,4 +1,4 @@
-package com.chaddy50.pomodoro.view.TimerScreen
+package com.chaddy50.pomodoro.ui.screens.timerScreen
 
 import android.app.Activity
 import android.content.Context
@@ -34,7 +34,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowCompat
-import com.chaddy50.pomodoro.viewmodel.TimerType
 import java.util.Calendar
 import java.util.concurrent.TimeUnit
 
@@ -43,30 +42,25 @@ import java.util.concurrent.TimeUnit
 private fun TimerDisplayPreview() {
     TimerDisplay(
         LocalContext.current,
-        false,
-        TimeUnit.MINUTES.toMillis(25),
-        TimeUnit.MINUTES.toMillis(25),
-        TimerType.FocusUntil,
-        {},
-        Calendar.getInstance().timeInMillis
+        TimerUiState(
+            timeLeftInMilliseconds = TimeUnit.MINUTES.toMillis(25),
+            timerLengthInMilliseconds = TimeUnit.MINUTES.toMillis(25),
+            focusUntilTimeInMilliseconds = Calendar.getInstance().timeInMillis,
+        ),
+        {}
     )
 }
 
 @Composable
 fun TimerDisplay(
     context: Context,
-    isTimerActive: Boolean,
-    timeLeftInMilliseconds: Long,
-    timerLengthInMilliseconds: Long,
-    timerType: TimerType,
+    uiState: TimerUiState,
     startTimer: () -> Unit,
-    focusUntilTimeInMilliseconds: Long,
 ) {
-    LaunchedEffect(isTimerActive, timerType) {
-        if (isTimerActive && (timerType == TimerType.FocusUntil)) {
+    LaunchedEffect(uiState.isTimerActive, uiState.timerType) {
+        if (uiState.isTimerActive && (uiState.timerType == TimerType.FocusUntil)) {
             hideSystemUI(context)
-        }
-        else {
+        } else {
             showSystemUI(context)
         }
     }
@@ -85,7 +79,7 @@ fun TimerDisplay(
             contentAlignment = Alignment.Center
         ) {
             CircularProgressIndicator(
-                progress = { 1f - (timeLeftInMilliseconds.toFloat() / timerLengthInMilliseconds.toFloat()) },
+                progress = { 1f - (uiState.timeLeftInMilliseconds.toFloat() / uiState.timerLengthInMilliseconds.toFloat()) },
                 modifier = Modifier
                     .matchParentSize(),
                 color = MaterialTheme.colorScheme.primary,
@@ -99,10 +93,7 @@ fun TimerDisplay(
                     .fillMaxSize()
             ) {
                 Text(
-                    getTimerLabel(
-                        timerType,
-                        isTimerActive
-                    ),
+                    getTimerLabel(uiState.timerType, uiState.isTimerActive),
                     fontSize = 30.sp,
                     modifier = Modifier
                         .align(Alignment.Center)
@@ -112,10 +103,10 @@ fun TimerDisplay(
                 Text(
                     getTimerDisplay(
                         context,
-                        isTimerActive,
-                        timerType,
-                        timeLeftInMilliseconds,
-                        focusUntilTimeInMilliseconds
+                        uiState.isTimerActive,
+                        uiState.timerType,
+                        uiState.timeLeftInMilliseconds,
+                        uiState.focusUntilTimeInMilliseconds
                     ),
                     fontSize = 75.sp,
                     modifier = Modifier
@@ -133,7 +124,7 @@ fun TimerDisplay(
                 .offset(y = 50.dp)
         ) {
             Icon(
-                imageVector = getTimerButtonIcon(isTimerActive),
+                imageVector = getTimerButtonIcon(uiState.isTimerActive),
                 contentDescription = "Start timer",
                 tint = MaterialTheme.colorScheme.onPrimary,
                 modifier = Modifier.size(36.dp)

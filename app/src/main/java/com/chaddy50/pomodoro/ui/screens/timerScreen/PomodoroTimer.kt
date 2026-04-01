@@ -1,4 +1,4 @@
-package com.chaddy50.pomodoro.viewmodel
+package com.chaddy50.pomodoro.ui.screens.timerScreen
 
 import java.util.Calendar
 
