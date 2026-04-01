@@ -63,7 +63,7 @@ class TimerViewModel : ViewModel() {
         _countDownTimer = createTimer(updatedTimer).also { it.start() }
     }
 
-    fun addNextTimerAndBreak() {
+    private fun addNextTimerAndBreak() {
         var focusTimerLengthInMilliseconds = getFocusTimerLengthInMilliseconds()
 
         val breakTimerType = when {
@@ -78,11 +78,12 @@ class TimerViewModel : ViewModel() {
         _timers.value = _timers.value + focusTimer + breakTimer
     }
 
-    fun activateNextTimer() {
+    private fun activateNextTimer() {
         val currentIndex = _timers.value.indexOfFirst { it.id == _activeTimerID.value }
         val nextTimer = _timers.value.getOrNull(currentIndex + 1)
         if (nextTimer != null) {
             _activeTimerID.value = nextTimer.id
+            _timers.value = _timers.value.filter { it.id >= nextTimer.id }
         }
     }
     //#endregion
