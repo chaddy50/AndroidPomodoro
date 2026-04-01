@@ -46,14 +46,16 @@ private fun TimerDisplayPreview() {
             timerLengthInMilliseconds = TimeUnit.MINUTES.toMillis(25),
             focusUntilTimeInMilliseconds = Calendar.getInstance().timeInMillis,
         ),
-        {}
+        onStartTimer = {},
+        onStopTimer = {},
     )
 }
 
 @Composable
 fun TimerDisplay(
     uiState: TimerUiState,
-    startTimer: () -> Unit,
+    onStartTimer: () -> Unit,
+    onStopTimer: () -> Unit,
 ) {
     val context = LocalContext.current
 
@@ -113,7 +115,7 @@ fun TimerDisplay(
         }
 
         FilledIconButton(
-            onClick = startTimer,
+            onClick = if (uiState.isTimerActive) onStopTimer else onStartTimer,
             modifier = Modifier
                 .align(Alignment.CenterHorizontally)
                 .height(60.dp)

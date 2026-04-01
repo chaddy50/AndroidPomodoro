@@ -10,6 +10,7 @@ fun TimerScreen(viewModel: TimerViewModel) {
 
     TimerDisplay(
         uiState,
-        viewModel::startTimer
+        onStartTimer = viewModel::startTimer,
+        onStopTimer = viewModel::stopTimer,
     )
 }

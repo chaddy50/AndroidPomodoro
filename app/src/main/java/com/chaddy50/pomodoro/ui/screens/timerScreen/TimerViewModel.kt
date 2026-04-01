@@ -62,10 +62,27 @@ class TimerViewModel : ViewModel() {
 
         _countDownTimer?.cancel()
 
-        val updatedTimer = timer.copy(isActive = true)
+        // Recalculate time left from the current moment so that a delay between initialisation
+        // and pressing start doesn't cause the timer to run past the target half-hour mark.
+        val timeLeft = if (timer.type == TimerType.FocusUntil) {
+            timer.focusUntilTimeInMilliseconds - Calendar.getInstance().timeInMillis
+        } else {
+            timer.timeLeftInMilliseconds
+        }
+        val updatedTimer = timer.copy(isActive = true, timeLeftInMilliseconds = timeLeft, lengthInMilliseconds = timeLeft)
         _timers.value = _timers.value.map { if (it.id == timer.id) updatedTimer else it }
 
         _countDownTimer = createTimer(updatedTimer).also { it.start() }
+    }
+
+    fun stopTimer() {
+        _countDownTimer?.cancel()
+        _countDownTimer = null
+
+        _timers.value = emptyList()
+        _activeTimerID.value = 0
+        addNextTimerAndBreak()
+        activateNextTimer()
     }
 
     private fun addNextTimerAndBreak() {
