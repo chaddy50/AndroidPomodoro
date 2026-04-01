@@ -6,18 +6,24 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.lifecycleScope
 import com.chaddy50.pomodoro.notification.NotificationHandler
 import com.chaddy50.pomodoro.notification.createNotificationChannels
 import com.chaddy50.pomodoro.ui.theme.PomodoroTheme
 import com.chaddy50.pomodoro.ui.screens.timerScreen.TimerScreen
+import com.chaddy50.pomodoro.ui.screens.timerScreen.TimerViewModel
+import kotlinx.coroutines.launch
 
 class PomodoroApp : ComponentActivity() {
+    private val viewModel: TimerViewModel by viewModels()
+
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,11 +35,16 @@ class PomodoroApp : ComponentActivity() {
             notificationHandler.requestPermission(this)
         }
 
+        lifecycleScope.launch {
+            launch { viewModel.focusTimerFinishedEvent.collect { notificationHandler.sendFocusTimerFinishedNotification() } }
+            launch { viewModel.breakTimerFinishedEvent.collect { notificationHandler.sendBreakTimerFinishedNotification() } }
+        }
+
         setContent {
             PomodoroTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     Column(modifier = Modifier.padding(innerPadding)) {
-                        TimerScreen(notificationHandler)
+                        TimerScreen(viewModel)
                     }
                 }
             }
