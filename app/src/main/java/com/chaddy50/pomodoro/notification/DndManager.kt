@@ -26,7 +26,7 @@ class DndManager(context: Context) {
 
     fun enable() {
         if (hasPermission()) {
-            notificationManager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_NONE)
+            notificationManager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_PRIORITY)
         }
     }
 

@@ -1,15 +1,17 @@
 package com.chaddy50.pomodoro.ui.screens.timerScreen
 
 import android.content.Context
+import android.content.res.Configuration
 import android.text.format.DateFormat
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material.icons.Icons
@@ -25,10 +27,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.chaddy50.pomodoro.media.MusicUiState
 import java.util.Calendar
 import java.util.concurrent.TimeUnit
 
@@ -36,84 +40,131 @@ import java.util.concurrent.TimeUnit
 @Composable
 private fun TimerDisplayPreview() {
     TimerDisplay(
-        TimerUiState(
+        uiState = TimerUiState(
             timeLeftInMilliseconds = TimeUnit.MINUTES.toMillis(25),
             timerLengthInMilliseconds = TimeUnit.MINUTES.toMillis(25),
             focusUntilTimeInMilliseconds = Calendar.getInstance().timeInMillis,
         ),
+        musicUiState = MusicUiState(),
         onStartTimer = {},
         onStopTimer = {},
+        onPlayPause = {},
+        onNext = {},
+        onPrevious = {},
     )
 }
 
 @Composable
 fun TimerDisplay(
     uiState: TimerUiState,
+    musicUiState: MusicUiState,
     onStartTimer: () -> Unit,
     onStopTimer: () -> Unit,
+    onPlayPause: () -> Unit,
+    onNext: () -> Unit,
+    onPrevious: () -> Unit,
+) {
+    val isLandscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
+
+    if (isLandscape) {
+        Row(modifier = Modifier.fillMaxSize()) {
+            TimerSection(
+                uiState = uiState,
+                onStartTimer = onStartTimer,
+                onStopTimer = onStopTimer,
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight(),
+            )
+            MusicControlsSection(
+                uiState = musicUiState,
+                onPlayPause = onPlayPause,
+                onNext = onNext,
+                onPrevious = onPrevious,
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight(),
+            )
+        }
+    } else {
+        Column(modifier = Modifier.fillMaxSize()) {
+            TimerSection(
+                uiState = uiState,
+                onStartTimer = onStartTimer,
+                onStopTimer = onStopTimer,
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth(),
+            )
+            MusicControlsSection(
+                uiState = musicUiState,
+                onPlayPause = onPlayPause,
+                onNext = onNext,
+                onPrevious = onPrevious,
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth(),
+            )
+        }
+    }
+}
+
+@Composable
+private fun TimerSection(
+    uiState: TimerUiState,
+    onStartTimer: () -> Unit,
+    onStopTimer: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
 
+    val timerLabel = getTimerLabel(uiState.timerType, uiState.isTimerActive)
+
     Column(
-        modifier = Modifier.fillMaxSize(),
+        modifier = modifier,
         verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
+        if (timerLabel.isNotEmpty()) {
+            Text(timerLabel, fontSize = 22.sp)
+            Spacer(modifier = Modifier.height(8.dp))
+        }
 
         Box(
-            modifier = Modifier
-                .widthIn(max = 300.dp)
-                .fillMaxWidth(1f)
-                .aspectRatio(1f),
-            contentAlignment = Alignment.Center
+            modifier = Modifier.size(180.dp),
+            contentAlignment = Alignment.Center,
         ) {
             CircularProgressIndicator(
                 progress = {
                     if (uiState.timerLengthInMilliseconds == 0L) 0f
                     else 1f - (uiState.timeLeftInMilliseconds.toFloat() / uiState.timerLengthInMilliseconds.toFloat())
                 },
-                modifier = Modifier
-                    .matchParentSize(),
+                modifier = Modifier.matchParentSize(),
                 color = MaterialTheme.colorScheme.primary,
                 strokeWidth = 16.dp,
                 trackColor = MaterialTheme.colorScheme.secondaryContainer,
                 strokeCap = StrokeCap.Round,
             )
 
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-            ) {
-                Text(
-                    getTimerLabel(uiState.timerType, uiState.isTimerActive),
-                    fontSize = 30.sp,
-                    modifier = Modifier
-                        .align(Alignment.Center)
-                        .offset(y = (-60).dp)
-                )
-
-                Text(
-                    getTimerDisplay(context, uiState),
-                    fontSize = 75.sp,
-                    modifier = Modifier
-                        .align(Alignment.Center)
-                )
-            }
+            Text(
+                getTimerDisplay(context, uiState),
+                fontSize = 52.sp,
+            )
         }
+
+        Spacer(modifier = Modifier.height(16.dp))
 
         FilledIconButton(
             onClick = if (uiState.isTimerActive) onStopTimer else onStartTimer,
             modifier = Modifier
-                .align(Alignment.CenterHorizontally)
                 .height(60.dp)
-                .widthIn(60.dp)
-                .offset(y = 50.dp)
+                .widthIn(60.dp),
         ) {
             Icon(
                 imageVector = getTimerButtonIcon(uiState.isTimerActive),
                 contentDescription = "Start timer",
                 tint = MaterialTheme.colorScheme.onPrimary,
-                modifier = Modifier.size(36.dp)
+                modifier = Modifier.size(36.dp),
             )
         }
     }

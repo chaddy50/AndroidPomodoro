@@ -19,6 +19,7 @@ import androidx.lifecycle.lifecycleScope
 import com.chaddy50.pomodoro.notification.DndManager
 import com.chaddy50.pomodoro.notification.NotificationHandler
 import com.chaddy50.pomodoro.notification.createNotificationChannels
+import com.chaddy50.pomodoro.media.MusicViewModel
 import com.chaddy50.pomodoro.ui.theme.PomodoroTheme
 import com.chaddy50.pomodoro.ui.screens.timerScreen.TimerScreen
 import com.chaddy50.pomodoro.ui.screens.timerScreen.TimerType
@@ -27,6 +28,7 @@ import kotlinx.coroutines.launch
 
 class PomodoroApp : ComponentActivity() {
     private val viewModel: TimerViewModel by viewModels()
+    private val musicViewModel: MusicViewModel by viewModels()
     private val dndManager by lazy { DndManager(this) }
     private val notificationHandler by lazy { NotificationHandler(this) }
 
@@ -55,7 +57,7 @@ class PomodoroApp : ComponentActivity() {
             PomodoroTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     Column(modifier = Modifier.padding(innerPadding)) {
-                        TimerScreen(viewModel)
+                        TimerScreen(viewModel, musicViewModel)
                     }
                 }
             }
@@ -64,6 +66,7 @@ class PomodoroApp : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
+        musicViewModel.checkPermission()
         if (!dndManager.hasPermission()) {
             dndManager.requestPermission(this)
         }
