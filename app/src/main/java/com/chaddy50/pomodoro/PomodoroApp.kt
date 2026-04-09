@@ -1,5 +1,6 @@
 package com.chaddy50.pomodoro
 
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.view.View
@@ -15,7 +16,9 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.core.view.WindowCompat
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.chaddy50.pomodoro.navigation.FocusRoute
 import com.chaddy50.pomodoro.navigation.HomeRoute
 import com.chaddy50.pomodoro.navigation.NavigationHost
 import com.chaddy50.pomodoro.notification.DndManager
@@ -32,6 +35,21 @@ class PomodoroApp : ComponentActivity() {
     private val musicViewModel: MediaControlsViewModel by viewModels()
     private val dndManager by lazy { DndManager(this) }
     private val notificationHandler by lazy { NotificationHandler(this) }
+    private var navController: NavHostController? = null
+
+    companion object {
+        const val EXTRA_NAVIGATE_TO_FOCUS = "navigate_to_focus"
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        if (intent.getBooleanExtra(EXTRA_NAVIGATE_TO_FOCUS, false)) {
+            navController?.navigate(FocusRoute) {
+                popUpTo<HomeRoute>()
+                launchSingleTop = true
+            }
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,7 +58,7 @@ class PomodoroApp : ComponentActivity() {
 
         setContent {
             PomodoroTheme {
-                val navController = rememberNavController()
+                val navController = rememberNavController().also { this.navController = it }
 
                 LaunchedEffect(Unit) {
                     launch { viewModel.focusTimerFinishedEvent.collect { notificationHandler.sendFocusTimerFinishedNotification() } }

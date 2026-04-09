@@ -18,6 +18,7 @@
         <activity
             android:name="com.chaddy50.pomodoro.PomodoroApp"
             android:exported="true"
+            android:launchMode="singleTop"
             android:theme="@style/Theme.Pomodoro" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

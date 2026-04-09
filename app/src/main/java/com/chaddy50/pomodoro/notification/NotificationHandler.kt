@@ -45,25 +45,30 @@ class NotificationHandler(private val context: Context) {
     }
 
     fun sendBreakTimerFinishedNotification() {
-        sendNotification("Break time is over", "Get back to work!")
+        sendNotification("Break time is over", "Get back to work!", navigateToFocus = true)
     }
 
     fun sendFocusTimerFinishedNotification() {
-        sendNotification("Focus time is over", "Take a break!")
+        sendNotification("Focus time is over", "Take a break!", navigateToFocus = true)
     }
 
     fun sendSessionFinishedNotification() {
-        sendNotification("Session complete", "Great work! Your focus session has ended.")
+        sendNotification("Session complete", "Great work! Your focus session has ended.", navigateToFocus = false)
     }
 
-    private fun sendNotification(title: String, content: String) {
-        val activityIntent = Intent(context, PomodoroApp::class.java)
+    private fun sendNotification(title: String, content: String, navigateToFocus: Boolean) {
+        val activityIntent = Intent(context, PomodoroApp::class.java).apply {
+            if (navigateToFocus) {
+                flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
+                putExtra(PomodoroApp.EXTRA_NAVIGATE_TO_FOCUS, true)
+            }
+        }
 
         val activityPendingIntent = PendingIntent.getActivity(
             context,
             54321,
             activityIntent,
-            PendingIntent.FLAG_IMMUTABLE
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
 
         val builder = NotificationCompat.Builder(context, "Notifications")
