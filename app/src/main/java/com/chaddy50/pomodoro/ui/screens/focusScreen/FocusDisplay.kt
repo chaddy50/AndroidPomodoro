@@ -80,6 +80,22 @@ fun FocusDisplay(
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
+        // Tap-to-reveal overlay — placed first so it is behind all content.
+        // Interactive elements (music controls) in the layers above consume their own taps
+        // first; taps on non-interactive areas fall through to this overlay.
+        if (!buttonsVisible) {
+            Box(
+                modifier = Modifier
+                    .matchParentSize()
+                    .pointerInput(Unit) {
+                        detectTapGestures {
+                            controlsVisible = true
+                            lastTapTime = System.currentTimeMillis()
+                        }
+                    }
+            )
+        }
+
         if (isLandscape) {
             Column(modifier = Modifier.fillMaxSize()) {
                 if (timerLabel.isNotEmpty()) {
@@ -104,7 +120,6 @@ fun FocusDisplay(
                         modifier = Modifier.weight(1f).fillMaxHeight(),
                     )
                 }
-
             }
         } else {
             Column(modifier = Modifier.fillMaxSize()) {
@@ -139,20 +154,6 @@ fun FocusDisplay(
             TimerButton(timerUiState, onStartTimer, onStopTimer)
         }
 
-        // Full-screen tap target — only present when the controls are hidden.
-        // Once the controls appear this is removed, so the stop button is directly tappable.
-        if (!buttonsVisible) {
-            Box(
-                modifier = Modifier
-                    .matchParentSize()
-                    .pointerInput(Unit) {
-                        detectTapGestures {
-                            controlsVisible = true
-                            lastTapTime = System.currentTimeMillis()
-                        }
-                    }
-            )
-        }
     }
 }
 
