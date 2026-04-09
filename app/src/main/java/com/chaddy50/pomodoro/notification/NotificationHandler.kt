@@ -6,6 +6,8 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.media.AudioAttributes
+import android.media.RingtoneManager
 import android.os.Build
 import androidx.activity.result.ActivityResultLauncher
 import androidx.annotation.RequiresApi
@@ -56,7 +58,22 @@ class NotificationHandler(private val context: Context) {
         sendNotification("Session complete", "Great work! Your focus session has ended.", navigateToFocus = false)
     }
 
+    private fun playAlarmSound() {
+        val uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
+            ?: RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE)
+        val ringtone = RingtoneManager.getRingtone(context, uri) ?: return
+        ringtone.audioAttributes = AudioAttributes.Builder()
+            .setUsage(AudioAttributes.USAGE_ALARM)
+            .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+            .build()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            ringtone.isLooping = false
+        }
+        ringtone.play()
+    }
+
     private fun sendNotification(title: String, content: String, navigateToFocus: Boolean) {
+        playAlarmSound()
         val activityIntent = Intent(context, PomodoroApp::class.java).apply {
             if (navigateToFocus) {
                 flags = Intent.FLAG_ACTIVITY_SINGLE_TOP

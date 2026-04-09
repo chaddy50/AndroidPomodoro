@@ -3,6 +3,7 @@ package com.chaddy50.pomodoro.notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
+import android.net.Uri
 import android.os.Build
 import com.chaddy50.pomodoro.R
 
@@ -19,6 +20,7 @@ fun createFocusTimerNotificationChannel(context: Context) {
         val importance = NotificationManager.IMPORTANCE_HIGH
         val channel = NotificationChannel("Notifications", name, importance).apply {
             description = descriptionText
+            setSound(Uri.EMPTY, null) // sound is played directly via RingtoneManager to bypass vibrate mode
         }
         // Register the channel with the system.
         val notificationManager: NotificationManager =
