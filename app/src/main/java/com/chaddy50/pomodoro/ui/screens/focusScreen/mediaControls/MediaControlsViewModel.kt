@@ -1,4 +1,4 @@
-package com.chaddy50.pomodoro.media
+package com.chaddy50.pomodoro.ui.screens.focusScreen.mediaControls
 
 import android.app.Application
 import android.media.MediaMetadata
@@ -12,10 +12,10 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-class MusicViewModel(application: Application) : AndroidViewModel(application) {
+class MediaControlsViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val _uiState = MutableStateFlow(MusicUiState())
-    val uiState: StateFlow<MusicUiState> = _uiState.asStateFlow()
+    private val _uiState = MutableStateFlow(MediaControlsUiState())
+    val uiState: StateFlow<MediaControlsUiState> = _uiState.asStateFlow()
 
     private var activeController: MediaController? = null
 
@@ -31,7 +31,7 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
 
     init {
         viewModelScope.launch {
-            MediaNotificationListenerService.activeControllers.collect { controllers ->
+            MediaNotificationListenerService.Companion.activeControllers.collect { controllers ->
                 activeController?.unregisterCallback(controllerCallback)
                 activeController = controllers.firstOrNull()
                 activeController?.registerCallback(controllerCallback)

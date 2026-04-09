@@ -52,6 +52,10 @@ class NotificationHandler(private val context: Context) {
         sendNotification("Focus time is over", "Take a break!")
     }
 
+    fun sendSessionFinishedNotification() {
+        sendNotification("Session complete", "Great work! Your focus session has ended.")
+    }
+
     private fun sendNotification(title: String, content: String) {
         val activityIntent = Intent(context, PomodoroApp::class.java)
 

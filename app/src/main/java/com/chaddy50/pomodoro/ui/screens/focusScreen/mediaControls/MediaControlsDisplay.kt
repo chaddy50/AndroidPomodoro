@@ -1,4 +1,4 @@
-package com.chaddy50.pomodoro.ui.screens.timerScreen
+package com.chaddy50.pomodoro.ui.screens.focusScreen.mediaControls
 
 import android.content.Intent
 import androidx.compose.foundation.layout.Arrangement
@@ -27,11 +27,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.chaddy50.pomodoro.media.MusicUiState
 
 @Composable
-fun MusicControlsSection(
-    uiState: MusicUiState,
+fun MediaControlsDisplay(
+    uiState: MediaControlsUiState,
     onPlayPause: () -> Unit,
     onNext: () -> Unit,
     onPrevious: () -> Unit,

@@ -1,4 +1,4 @@
-package com.chaddy50.pomodoro.media
+package com.chaddy50.pomodoro.ui.screens.focusScreen.mediaControls
 
 import android.content.ComponentName
 import android.media.session.MediaController

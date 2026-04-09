@@ -9,26 +9,27 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.core.view.WindowCompat
-import androidx.lifecycle.lifecycleScope
+import androidx.navigation.compose.rememberNavController
+import com.chaddy50.pomodoro.navigation.HomeRoute
+import com.chaddy50.pomodoro.navigation.NavigationHost
 import com.chaddy50.pomodoro.notification.DndManager
 import com.chaddy50.pomodoro.notification.NotificationHandler
 import com.chaddy50.pomodoro.notification.createNotificationChannels
-import com.chaddy50.pomodoro.media.MusicViewModel
+import com.chaddy50.pomodoro.ui.screens.focusScreen.mediaControls.MediaControlsViewModel
 import com.chaddy50.pomodoro.ui.theme.PomodoroTheme
-import com.chaddy50.pomodoro.ui.screens.timerScreen.TimerScreen
-import com.chaddy50.pomodoro.ui.screens.timerScreen.TimerType
-import com.chaddy50.pomodoro.ui.screens.timerScreen.TimerViewModel
+import com.chaddy50.pomodoro.ui.screens.focusScreen.TimerType
+import com.chaddy50.pomodoro.ui.screens.focusScreen.timer.TimerViewModel
 import kotlinx.coroutines.launch
 
 class PomodoroApp : ComponentActivity() {
     private val viewModel: TimerViewModel by viewModels()
-    private val musicViewModel: MusicViewModel by viewModels()
+    private val musicViewModel: MediaControlsViewModel by viewModels()
     private val dndManager by lazy { DndManager(this) }
     private val notificationHandler by lazy { NotificationHandler(this) }
 
@@ -37,28 +38,41 @@ class PomodoroApp : ComponentActivity() {
         createNotificationChannels(this)
         enableEdgeToEdge()
 
-        lifecycleScope.launch {
-            launch { viewModel.focusTimerFinishedEvent.collect { notificationHandler.sendFocusTimerFinishedNotification() } }
-            launch { viewModel.breakTimerFinishedEvent.collect { notificationHandler.sendBreakTimerFinishedNotification() } }
-            launch {
-                viewModel.uiState.collect { state ->
-                    if (state.isTimerActive && state.timerType == TimerType.FocusUntil) {
-                        dndManager.enable()
-                        hideSystemUI()
-                    } else {
-                        dndManager.disable()
-                        showSystemUI()
-                    }
-                }
-            }
-        }
-
         setContent {
             PomodoroTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Column(modifier = Modifier.padding(innerPadding)) {
-                        TimerScreen(viewModel, musicViewModel)
+                val navController = rememberNavController()
+
+                LaunchedEffect(Unit) {
+                    launch { viewModel.focusTimerFinishedEvent.collect { notificationHandler.sendFocusTimerFinishedNotification() } }
+                    launch { viewModel.breakTimerFinishedEvent.collect { notificationHandler.sendBreakTimerFinishedNotification() } }
+                    launch {
+                        viewModel.sessionFinishedEvent.collect {
+                            notificationHandler.sendSessionFinishedNotification()
+                            navController.navigate(HomeRoute) {
+                                popUpTo<HomeRoute> { inclusive = true }
+                            }
+                        }
                     }
+                    launch {
+                        viewModel.uiState.collect { state ->
+                            if (state.isTimerActive && state.timerType == TimerType.FocusUntil) {
+                                dndManager.enable()
+                                hideSystemUI()
+                            } else {
+                                dndManager.disable()
+                                showSystemUI()
+                            }
+                        }
+                    }
+                }
+
+                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                    NavigationHost(
+                        navController = navController,
+                        viewModel = viewModel,
+                        musicViewModel = musicViewModel,
+                        modifier = Modifier.padding(innerPadding),
+                    )
                 }
             }
         }

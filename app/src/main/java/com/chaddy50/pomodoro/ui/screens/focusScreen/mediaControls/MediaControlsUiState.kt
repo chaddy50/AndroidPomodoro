@@ -1,6 +1,6 @@
-package com.chaddy50.pomodoro.media
+package com.chaddy50.pomodoro.ui.screens.focusScreen.mediaControls
 
-data class MusicUiState(
+data class MediaControlsUiState(
     val hasPermission: Boolean = false,
     val hasActiveSession: Boolean = false,
     val isPlaying: Boolean = false,

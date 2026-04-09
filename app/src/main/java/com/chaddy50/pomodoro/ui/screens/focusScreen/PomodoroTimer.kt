@@ -1,4 +1,4 @@
-package com.chaddy50.pomodoro.ui.screens.timerScreen
+package com.chaddy50.pomodoro.ui.screens.focusScreen
 
 import java.util.Calendar
 
@@ -21,6 +21,7 @@ data class PomodoroTimer(
             id: Int,
             type: TimerType,
             lengthInMilliseconds: Long,
+            focusUntilEpochMilliseconds: Long = Calendar.getInstance().timeInMillis + lengthInMilliseconds,
         ): PomodoroTimer {
             return PomodoroTimer(
                 id,
@@ -28,7 +29,7 @@ data class PomodoroTimer(
                 false,
                 lengthInMilliseconds,
                 lengthInMilliseconds,
-                Calendar.getInstance().timeInMillis + lengthInMilliseconds
+                focusUntilEpochMilliseconds
             )
         }
     }
