@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -147,7 +148,16 @@ fun FocusDisplay(
         // Button floats over the content so nothing shifts when it appears/disappears.
         AnimatedVisibility(
             visible = buttonsVisible,
-            modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 16.dp),
+            // When the timer is active the nav bar is hidden via immersive sticky, so
+            // navigationBarsPadding() returns 0. If the user swipes to reveal the nav bar it
+            // appears as a transient overlay without changing the insets, so we use a fixed
+            // minimum bottom padding large enough to clear the nav bar (typically 48–56 dp).
+            // When the timer is inactive the nav bar is truly visible and navigationBarsPadding()
+            // handles the offset correctly, so we only need the small visual gap.
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .navigationBarsPadding()
+                .padding(bottom = if (timerUiState.isTimerActive) 56.dp else 16.dp),
             enter = slideInVertically(initialOffsetY = { it }) + fadeIn(),
             exit = slideOutVertically(targetOffsetY = { it }) + fadeOut(),
         ) {
